@@ -25,17 +25,64 @@ export default function Category() {
     const [rowData, setRowData] = useState<any[]>([]);
     console.log("row data", rowData);
     
+    // Image popup state
+    const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+
     // Column Definitions: Defines the columns to be displayed.
     const [colDefs, setColDefs] = useState<any>([
-        { field: "mainCategory", headerName: "Main Category", filter: 'agTextColumnFilter' },
-        { field: "subCategory", headerName: "Sub Category", filter: 'agTextColumnFilter' },
-        { field: "nestedCategory", headerName: "Nested Category", filter: 'agTextColumnFilter' },
-        { field: "image", headerName: "Image", filter: 'agTextColumnFilter',
-          cellRenderer: (params: any) => (
-            params.value
-              ? <img src={`http://localhost:3050/Uploads/${params.value}`} alt="img" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6 }} />
-              : "-"
-          )
+        {
+            field: "mainCategory",
+            headerName: "Main Category",
+            filter: 'agTextColumnFilter',
+            cellRenderer: (params: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {params.data && params.data.mainCategoryImage ? (
+                        <img
+                            src={`http://localhost:3050/Uploads/${params.data.mainCategoryImage}`}
+                            alt="img"
+                            style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
+                            onClick={() => setSelectedImageUrl(`http://localhost:3050/Uploads/${params.data.mainCategoryImage}`)}
+                        />
+                    ) : null}
+                    <span>{params.value}</span>
+                </div>
+            )
+        },
+        {
+            field: "subCategory",
+            headerName: "Sub Category",
+            filter: 'agTextColumnFilter',
+            cellRenderer: (params: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {params.data && params.data.subCategoryImage ? (
+                        <img
+                            src={`http://localhost:3050/Uploads/${params.data.subCategoryImage}`}
+                            alt="img"
+                            style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
+                            onClick={() => setSelectedImageUrl(`http://localhost:3050/Uploads/${params.data.subCategoryImage}`)}
+                        />
+                    ) : null}
+                    <span>{params.value}</span>
+                </div>
+            )
+        },
+        {
+            field: "nestedCategory",
+            headerName: "Nested Category",
+            filter: 'agTextColumnFilter',
+            cellRenderer: (params: any) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {params.data && params.data.image ? (
+                        <img
+                            src={`http://localhost:3050/Uploads/${params.data.image}`}
+                            alt="img"
+                            style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
+                            onClick={() => setSelectedImageUrl(`http://localhost:3050/Uploads/${params.data.image}`)}
+                        />
+                    ) : null}
+                    <span>{params.value}</span>
+                </div>
+            )
         },
         { field: "description", headerName: "Description", filter: 'agTextColumnFilter' },
         { field: "price", headerName: "Price", filter: 'agNumberColumnFilter', valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '' || isNaN(Number(params.value))) ? '-' : params.value },
@@ -135,7 +182,9 @@ export default function Category() {
                                     flat.push({
                                         _id: nested._id,
                                         mainCategory: main.name,
+                                        mainCategoryImage: main.image || "",
                                         subCategory: sub.name,
+                                        subCategoryImage: sub.image || "",
                                         nestedCategory: nested.name,
                                         image: nested.image,
                                         description: nested.description,
@@ -147,7 +196,9 @@ export default function Category() {
                                 flat.push({
                                     _id: sub._id,
                                     mainCategory: main.name,
+                                    mainCategoryImage: main.image || "",
                                     subCategory: sub.name,
+                                    subCategoryImage: sub.image || "",
                                     nestedCategory: "",
                                     image: "",
                                     description: "",
@@ -160,7 +211,9 @@ export default function Category() {
                         flat.push({
                             _id: main._id,
                             mainCategory: main.name,
+                            mainCategoryImage: main.image || "",
                             subCategory: "",
+                            subCategoryImage: "",
                             nestedCategory: "",
                             image: "",
                             description: "",
@@ -175,7 +228,7 @@ export default function Category() {
                 setSubCategoryOptionsForNested(subOptionsForNested);
             });
     };
-
+    console.log("row data", rowData);
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -308,7 +361,7 @@ export default function Category() {
                     </Button>
                     <div style={{ width: 60, height: 60, border: '1px solid #ccc', marginLeft: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <img
-                            src="http://localhost:3050/Uploads/1750771985101-151689404.png"
+                            src="http://localhost:3050/Uploads/1750407270705-536408066.png"
                             alt="Test"
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
@@ -536,6 +589,14 @@ export default function Category() {
                     </div>
                 </Modal>
             </div>
+            {/* Image Popup Modal */}
+            <Modal isOpen={!!selectedImageUrl} onClose={() => setSelectedImageUrl(null)} className="max-w-[420px] max-h-[420px] flex items-center justify-center">
+                <div className="flex flex-col items-center justify-center p-2">
+                    {selectedImageUrl && (
+                        <img src={selectedImageUrl} alt="Popup" style={{ width: 400, height: 400, objectFit: 'cover', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.2)' }} />
+                    )}
+                </div>
+            </Modal>
         </div>
     );
 }
