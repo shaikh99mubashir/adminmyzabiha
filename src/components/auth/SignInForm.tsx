@@ -1,25 +1,50 @@
 import { useState } from "react";
-import { Link } from "react-router";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import { useNavigate } from "react-router";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
+// import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+import { useLoginMutation } from "../../redux/services/authSlice";
+import Swal from "sweetalert2";
 
 export default function SignInForm() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  // const [isChecked, setIsChecked] = useState(false);
+  const [loginApi] = useLoginMutation();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    console.log(email, password);
+    
+    const result = await loginApi({ email, password });
+    console.log('result', result);
+    
+    if (result.error) {
+      // Handle error
+      console.error('Login failed:', result.error);
+      Swal.fire({
+        title: "Error",
+        text: "Login failed. Please check your credentials.",
+        icon: "error",
+      });
+    } else if (result.data?.token) {
+      // Handle success
+      Swal.fire({
+        title: "Success",
+        text: "Admin logged in successfully!",
+        icon: "success",
+      });
+      navigate("/");
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1">
-      <div className="w-full max-w-md pt-10 mx-auto">
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeftIcon className="size-5" />
-          Back to dashboard
-        </Link>
-      </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -83,13 +108,13 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" />
+                  <Input placeholder="info@gmail.com" name="email" />
                 </div>
                 <div>
                   <Label>
@@ -99,6 +124,7 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                      name="password"
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -112,7 +138,7 @@ export default function SignInForm() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Checkbox checked={isChecked} onChange={setIsChecked} />
                     <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
@@ -125,16 +151,16 @@ export default function SignInForm() {
                   >
                     Forgot password?
                   </Link>
-                </div>
+                </div> */}
                 <div>
-                  <Button className="w-full" size="sm">
+                  <Button className="w-full mt-4" size="sm">
                     Sign in
                   </Button>
                 </div>
               </div>
             </form>
 
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account? {""}
                 <Link
@@ -144,7 +170,7 @@ export default function SignInForm() {
                   Sign Up
                 </Link>
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -19,6 +19,8 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Category from "./pages/Screens/Category";
+import Orders from "./pages/Screens/Orders";
+import AuthRoute from "./routes/auth-route";
 
 export default function App() {
   return (
@@ -28,13 +30,22 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
+          <Route
+              path="/profile"
+              element={
+                <AuthRoute roles={'all'}>
+                  <UserProfiles />
+                </AuthRoute>
+              }
+            />
             <Route index path="/" element={<Home />} />
 
             {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
+
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
             <Route path="/Category" element={<Category />} />
+            <Route path="/orders" element={<Orders />} />
 
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />

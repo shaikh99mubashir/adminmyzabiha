@@ -10,6 +10,9 @@ import Label from "../../components/form/Label";
 import InputField from "../../components/form/input/InputField";
 import TextArea from "../../components/form/input/TextArea";
 import TrashIcon from "../../icons/trash.svg";
+import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation } from "../../redux/services/categoriesSlice";
+import Swal from "sweetalert2";
+import { UPLOADS_URL } from "../../constants/api";
 
 const DeleteButtonRenderer = (props: any) => (
   <button
@@ -28,8 +31,24 @@ export default function Category() {
     // Image popup state
     const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
+    // RTK Query hooks
+    const { data: categoriesData, isLoading, error } = useGetCategoriesQuery(undefined);
+    const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
+    const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+    console.log(UPLOADS_URL);
+    
     // Column Definitions: Defines the columns to be displayed.
-    const [colDefs, setColDefs] = useState<any>([
+    const [colDefs] = useState<any>([
+        {
+            headerName: "Actions",
+            field: "actions",
+            cellRenderer: (params: any) => (
+                <DeleteButtonRenderer data={params.data} onDelete={handleDeleteClick} />
+            ),
+            width: 80,
+            filter: false,
+            sortable: false,
+        },
         {
             field: "mainCategory",
             headerName: "Main Category",
@@ -38,10 +57,10 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.mainCategoryImage ? (
                         <img
-                            src={`http://localhost:3050/Uploads/${params.data.mainCategoryImage}`}
+                            src={`${UPLOADS_URL}Uploads/${params.data.mainCategoryImage}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`http://localhost:3050/Uploads/${params.data.mainCategoryImage}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.mainCategoryImage}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
@@ -56,10 +75,10 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.subCategoryImage ? (
                         <img
-                            src={`http://localhost:3050/Uploads/${params.data.subCategoryImage}`}
+                            src={`${UPLOADS_URL}Uploads/${params.data.subCategoryImage}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`http://localhost:3050/Uploads/${params.data.subCategoryImage}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.subCategoryImage}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
@@ -74,29 +93,25 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.image ? (
                         <img
-                            src={`http://localhost:3050/Uploads/${params.data.image}`}
+                            src={`${UPLOADS_URL}Uploads/${params.data.image}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`http://localhost:3050/Uploads/${params.data.image}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.image}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
                 </div>
             )
         },
-        { field: "description", headerName: "Description", filter: 'agTextColumnFilter' },
+        { field: "description", headerName: "Description", filter: false },
         { field: "price", headerName: "Price", filter: 'agNumberColumnFilter', valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '' || isNaN(Number(params.value))) ? '-' : params.value },
         { field: "unit", headerName: "Unit", filter: 'agTextColumnFilter' },
-        {
-            headerName: "Actions",
-            field: "actions",
-            cellRenderer: (params: any) => (
-                <DeleteButtonRenderer data={params.data} onDelete={handleDeleteClick} />
-            ),
-            width: 80,
-            filter: false,
-            sortable: false,
-        },
+        { field: "numberOfUnits", headerName: "Number of Units", filter: 'agTextColumnFilter' },
+        { field: "keywords", headerName: "Keywords", filter: 'agTextColumnFilter' },
+        { field: "shortDescription", headerName: "Short Description", filter: 'agTextColumnFilter' },
+        { field: "numberOfPieces", headerName: "Number of Pieces", filter: 'agTextColumnFilter' },
+        { field: "mrpPrice", headerName: "MRP Price", filter: 'agNumberColumnFilter', valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '' || isNaN(Number(params.value))) ? '-' : params.value },
+        { field: "offPercent", headerName: "Off Percent", filter: 'agNumberColumnFilter', valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '' || isNaN(Number(params.value))) ? '-' : params.value },
     ]);
 
     const { isOpen, openModal, closeModal } = useModal();
@@ -107,9 +122,6 @@ export default function Category() {
     const [subCategoryName, setSubCategoryName] = useState("");
     const [selectedMainCategory, setSelectedMainCategory] = useState("");
 
-    // Main categories for select (using make as value/label for demo)
-    const mainCategoryOptions = rowData.map(item => ({ value: item.make, label: item.make }));
-
     // Nested Category Modal State
     const { isOpen: isNestedOpen, openModal: openNestedModal, closeModal: closeNestedModal } = useModal();
     const [nestedMainCategory, setNestedMainCategory] = useState("");
@@ -119,14 +131,18 @@ export default function Category() {
     const [nestedDescription, setNestedDescription] = useState("");
     const [nestedPrice, setNestedPrice] = useState("");
     const [nestedUnit, setNestedUnit] = useState("");
+    // New fields for nested category
+    const [nestedNumberOfUnits, setNestedNumberOfUnits] = useState("");
+    const [nestedKeywords, setNestedKeywords] = useState("");
+    const [nestedShortDescription, setNestedShortDescription] = useState("");
+    const [nestedNumberOfPieces, setNestedNumberOfPieces] = useState("");
+    const [nestedMrpPrice, setNestedMrpPrice] = useState("");
+    const [nestedOffPercent, setNestedOffPercent] = useState("");
 
-    // For demo: sub categories by main category
-    const subCategoriesByMain: { [key: string]: string[] } = {
-        Tesla: ["Model Y", "Model X"],
-        Ford: ["F-Series", "Mustang"],
-        Toyota: ["Corolla", "Camry"],
-    };
-    const nestedSubCategoryOptions = subCategoriesByMain[nestedMainCategory] || [];
+    // Derived price calculation for nested category
+    const calculatedNestedPrice = nestedMrpPrice && nestedOffPercent
+        ? Math.round(Number(nestedMrpPrice) - (Number(nestedMrpPrice) * Number(nestedOffPercent) / 100))
+        : "";
 
     // Main Category modal new fields
     const [mainCategoryImage, setMainCategoryImage] = useState<File | null>(null);
@@ -153,139 +169,155 @@ export default function Category() {
         }
     };
 
-    // Fetch categories and set options/data
-    const fetchCategories = () => {
-        fetch("http://localhost:3050/v1/categories")
-            .then(res => res.json())
-            .then((data) => {
-                // Map data so each row is a chain: main, sub, nested (side by side)
-                const flat: any[] = [];
-                const mainOptions: any[] = [];
-                const mainOptionsForNested: any[] = [];
-                const subOptionsForNested: Record<string, any[]> = {};
-                data.forEach((main: any) => {
-                    // For sub category select: only main categories (parent == null)
-                    if (!main.parent) {
-                        mainOptions.push({ value: main._id, label: main.name });
-                        mainOptionsForNested.push({ value: main._id, label: main.name });
-                        // For nested: collect subcategories for each main
-                        if (main.subCategories && main.subCategories.length > 0) {
-                            subOptionsForNested[main._id] = main.subCategories.map((sub: any) => ({ value: sub._id, label: sub.name }));
-                        } else {
-                            subOptionsForNested[main._id] = [];
-                        }
-                    }
+    // Process categories data and set options/data
+    useEffect(() => {
+        if (categoriesData) {
+            // Map data so each row is a chain: main, sub, nested (side by side)
+            const flat: any[] = [];
+            const mainOptions: any[] = [];
+            const mainOptionsForNested: any[] = [];
+            const subOptionsForNested: Record<string, any[]> = {};
+            
+            categoriesData.forEach((main: any) => {
+                // For sub category select: only main categories (parent == null)
+                if (!main.parent) {
+                    mainOptions.push({ value: main._id, label: main.name });
+                    mainOptionsForNested.push({ value: main._id, label: main.name });
+                    // For nested: collect subcategories for each main
                     if (main.subCategories && main.subCategories.length > 0) {
-                        main.subCategories.forEach((sub: any) => {
-                            if (sub.nestedCategories && sub.nestedCategories.length > 0) {
-                                sub.nestedCategories.forEach((nested: any) => {
-                                    flat.push({
-                                        _id: nested._id,
-                                        mainCategory: main.name,
-                                        mainCategoryImage: main.image || "",
-                                        subCategory: sub.name,
-                                        subCategoryImage: sub.image || "",
-                                        nestedCategory: nested.name,
-                                        image: nested.image,
-                                        description: nested.description,
-                                        price: nested.price || "",
-                                        unit: nested.unit || "",
-                                    });
-                                });
-                            } else {
+                        subOptionsForNested[main._id] = main.subCategories.map((sub: any) => ({ value: sub._id, label: sub.name }));
+                    } else {
+                        subOptionsForNested[main._id] = [];
+                    }
+                }
+                if (main.subCategories && main.subCategories.length > 0) {
+                    main.subCategories.forEach((sub: any) => {
+                        if (sub.nestedCategories && sub.nestedCategories.length > 0) {
+                            sub.nestedCategories.forEach((nested: any) => {
                                 flat.push({
-                                    _id: sub._id,
+                                    _id: nested._id,
                                     mainCategory: main.name,
                                     mainCategoryImage: main.image || "",
                                     subCategory: sub.name,
                                     subCategoryImage: sub.image || "",
-                                    nestedCategory: "",
-                                    image: "",
-                                    description: "",
-                                    price: "",
-                                    unit: "",
+                                    nestedCategory: nested.name,
+                                    image: nested.image,
+                                    description: nested.description,
+                                    price: nested.price || "",
+                                    unit: nested.unit || "",
+                                    // New fields for nested categories
+                                    numberOfUnits: nested.numberOfUnits || "",
+                                    keywords: nested.keywords || "",
+                                    shortDescription: nested.shortDescription || "",
+                                    numberOfPieces: nested.numberOfPieces || "",
+                                    mrpPrice: nested.mrpPrice || "",
+                                    offPercent: nested.offPercent || "",
                                 });
-                            }
-                        });
-                    } else {
-                        flat.push({
-                            _id: main._id,
-                            mainCategory: main.name,
-                            mainCategoryImage: main.image || "",
-                            subCategory: "",
-                            subCategoryImage: "",
-                            nestedCategory: "",
-                            image: "",
-                            description: "",
-                            price: "",
-                            unit: "",
-                        });
-                    }
-                });
-                setRowData(flat);
-                setMainCategoryOptionsForSub(mainOptions);
-                setMainCategoryOptionsForNested(mainOptionsForNested);
-                setSubCategoryOptionsForNested(subOptionsForNested);
+                            });
+                        } else {
+                            flat.push({
+                                _id: sub._id,
+                                mainCategory: main.name,
+                                mainCategoryImage: main.image || "",
+                                subCategory: sub.name,
+                                subCategoryImage: sub.image || "",
+                                nestedCategory: "",
+                                image: "",
+                                description: "",
+                                price: "",
+                                unit: "",
+                            });
+                        }
+                    });
+                } else {
+                    flat.push({
+                        _id: main._id,
+                        mainCategory: main.name,
+                        mainCategoryImage: main.image || "",
+                        subCategory: "",
+                        subCategoryImage: "",
+                        nestedCategory: "",
+                        image: "",
+                        description: "",
+                        price: "",
+                        unit: "",
+                    });
+                }
             });
-    };
+            setRowData(flat);
+            setMainCategoryOptionsForSub(mainOptions);
+            setMainCategoryOptionsForNested(mainOptionsForNested);
+            setSubCategoryOptionsForNested(subOptionsForNested);
+        }
+    }, [categoriesData]);
+
     console.log("row data", rowData);
-    useEffect(() => {
-        fetchCategories();
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', categoryName);
-        formData.append('description', mainCategoryDescription);
-        if (mainCategoryImage) {
-            formData.append('image', mainCategoryImage);
-        }
         try {
-            const response = await fetch('http://localhost:3050/v1/categories', {
-                method: 'POST',
-                body: formData,
-            });
-            if (!response.ok) {
-                throw new Error('Failed to submit category');
+            const categoryData: any = {
+                name: categoryName,
+                description: mainCategoryDescription,
+            };
+            if (mainCategoryImage) {
+                categoryData.image = mainCategoryImage;
             }
+            
+            await createCategory(categoryData).unwrap();
+            
             setCategoryName("");
             setMainCategoryImage(null);
             setMainCategoryDescription("");
             closeModal();
-            fetchCategories(); // reload table
+            
+            Swal.fire({
+                title: "Success",
+                text: "Main category created successfully!",
+                icon: "success",
+            });
         } catch (error: any) {
-            alert('Error: ' + error.message);
+            console.error('Error creating category:', error);
+            Swal.fire({
+                title: "Error",
+                text: error?.data?.message || "Failed to create category",
+                icon: "error",
+            });
         }
     };
 
     const handleSubCategorySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', subCategoryName);
-        formData.append('description', subCategoryDescription);
-        if (subCategoryImage) {
-            formData.append('image', subCategoryImage);
-        }
-        if (selectedMainCategory) {
-            formData.append('parent', selectedMainCategory);
-        }
         try {
-            const response = await fetch('http://localhost:3050/v1/categories', {
-                method: 'POST',
-                body: formData,
-            });
-            if (!response.ok) {
-                throw new Error('Failed to submit sub category');
+            const categoryData: any = {
+                name: subCategoryName,
+                description: subCategoryDescription,
+                parent: selectedMainCategory,
+            };
+            if (subCategoryImage) {
+                categoryData.image = subCategoryImage;
             }
+            
+            await createCategory(categoryData).unwrap();
+            
             setSelectedMainCategory("");
             setSubCategoryName("");
             setSubCategoryImage(null);
             setSubCategoryDescription("");
             closeSubModal();
-            fetchCategories(); // reload table
+            
+            Swal.fire({
+                title: "Success",
+                text: "Sub category created successfully!",
+                icon: "success",
+            });
         } catch (error: any) {
-            alert('Error: ' + error.message);
+            console.error('Error creating sub category:', error);
+            Swal.fire({
+                title: "Error",
+                text: error?.data?.message || "Failed to create sub category",
+                icon: "error",
+            });
         }
     };
 
@@ -295,27 +327,6 @@ export default function Category() {
         }
     };
 
-    const handleNestedCategorySubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log({
-            mainCategory: nestedMainCategory,
-            subCategory: nestedSubCategory,
-            name: nestedCategoryName,
-            image: nestedImage,
-            description: nestedDescription,
-            price: nestedPrice,
-            unit: nestedUnit,
-        });
-        setNestedMainCategory("");
-        setNestedSubCategory("");
-        setNestedCategoryName("");
-        setNestedImage(null);
-        setNestedDescription("");
-        setNestedPrice("");
-        setNestedUnit("");
-        closeNestedModal();
-    };
-
     const handleDeleteClick = (row: any) => {
         setDeleteTarget(row);
         setShowDeleteModal(true);
@@ -323,15 +334,23 @@ export default function Category() {
 
     const handleConfirmDelete = async () => {
         if (!deleteTarget) return;
-        console.log('Deleting:', deleteTarget);
         try {
-            const res = await fetch(`http://localhost:3050/v1/categories/${deleteTarget._id}`, { method: 'DELETE' });
-            console.log('Delete response:', res.status, await res.text());
+            await deleteCategory(deleteTarget._id).unwrap();
             setShowDeleteModal(false);
             setDeleteTarget(null);
-            fetchCategories();
-        } catch (e) {
-            alert('Delete failed');
+            
+            Swal.fire({
+                title: "Success",
+                text: "Category deleted successfully!",
+                icon: "success",
+            });
+        } catch (error: any) {
+            console.error('Delete failed:', error);
+            Swal.fire({
+                title: "Error",
+                text: error?.data?.message || "Failed to delete category",
+                icon: "error",
+            });
         }
     };
 
@@ -339,6 +358,22 @@ export default function Category() {
         setShowDeleteModal(false);
         setDeleteTarget(null);
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-lg">Loading categories...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-lg text-red-500">Error loading categories</div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -359,13 +394,6 @@ export default function Category() {
                     <Button size="sm" variant="primary" onClick={openNestedModal}>
                         Add Nested Category
                     </Button>
-                    <div style={{ width: 60, height: 60, border: '1px solid #ccc', marginLeft: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <img
-                            src="http://localhost:3050/Uploads/1750407270705-536408066.png"
-                            alt="Test"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                    </div>
                 </div>
                 <div style={{ height: 500 }}>
                     <AgGridReact
@@ -407,7 +435,13 @@ export default function Category() {
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <Button size="sm" variant="outline" onClick={closeModal}>Close</Button>
-                            <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600">Submit</button>
+                            <button 
+                                type="submit" 
+                                disabled={isCreating}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isCreating ? 'Creating...' : 'Submit'}
+                            </button>
                         </div>
                     </form>
                 </Modal>
@@ -452,32 +486,39 @@ export default function Category() {
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <Button size="sm" variant="outline" onClick={closeSubModal}>Close</Button>
-                            <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600">Submit</button>
+                            <button 
+                                type="submit" 
+                                disabled={isCreating}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isCreating ? 'Creating...' : 'Submit'}
+                            </button>
                         </div>
                     </form>
                 </Modal>
-                <Modal isOpen={isNestedOpen} onClose={closeNestedModal} className="max-w-[600px] m-4">
+                <Modal isOpen={isNestedOpen} onClose={closeNestedModal} className="max-w-[600px] xl:max-w-[1000px] m-4">
                     <form className="p-6" onSubmit={async (e) => {
                         e.preventDefault();
-                        const formData = new FormData();
-                        formData.append('name', nestedCategoryName);
-                        formData.append('description', nestedDescription);
-                        formData.append('price', nestedPrice);
-                        formData.append('unit', nestedUnit);
-                        if (nestedImage) {
-                            formData.append('image', nestedImage);
-                        }
-                        if (nestedSubCategory) {
-                            formData.append('parent', nestedSubCategory);
-                        }
                         try {
-                            const response = await fetch('http://localhost:3050/v1/categories', {
-                                method: 'POST',
-                                body: formData,
-                            });
-                            if (!response.ok) {
-                                throw new Error('Failed to submit nested category');
+                            const categoryData: any = {
+                                name: nestedCategoryName,
+                                description: nestedDescription,
+                                price: calculatedNestedPrice ? String(calculatedNestedPrice) : nestedPrice,
+                                unit: nestedUnit,
+                                numberOfUnits: nestedNumberOfUnits,
+                                keywords: nestedKeywords,
+                                shortDescription: nestedShortDescription,
+                                numberOfPieces: nestedNumberOfPieces,
+                                mrpPrice: nestedMrpPrice,
+                                offPercent: nestedOffPercent,
+                                parent: nestedSubCategory,
+                            };
+                            if (nestedImage) {
+                                categoryData.image = nestedImage;
                             }
+                            
+                            await createCategory(categoryData).unwrap();
+                            
                             setNestedMainCategory("");
                             setNestedSubCategory("");
                             setNestedCategoryName("");
@@ -485,14 +526,30 @@ export default function Category() {
                             setNestedDescription("");
                             setNestedPrice("");
                             setNestedUnit("");
+                            setNestedNumberOfUnits("");
+                            setNestedKeywords("");
+                            setNestedShortDescription("");
+                            setNestedNumberOfPieces("");
+                            setNestedMrpPrice("");
+                            setNestedOffPercent("");
                             closeNestedModal();
-                            fetchCategories(); // reload table
+                            
+                            Swal.fire({
+                                title: "Success",
+                                text: "Nested category created successfully!",
+                                icon: "success",
+                            });
                         } catch (error: any) {
-                            alert('Error: ' + error.message);
+                            console.error('Error creating nested category:', error);
+                            Swal.fire({
+                                title: "Error",
+                                text: error?.data?.message || "Failed to create nested category",
+                                icon: "error",
+                            });
                         }
                     }}>
                         <h2 className="text-xl font-semibold mb-4">Add Nested Category</h2>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
                             <div>
                                 <Label>Main Category</Label>
                                 <Select
@@ -538,20 +595,43 @@ export default function Category() {
                                 />
                             </div>
                             <div>
-                                <Label>Price</Label>
+                                <Label>MRP Price</Label>
                                 <InputField
                                     type="number"
-                                    value={nestedPrice}
-                                    onChange={e => setNestedPrice(e.target.value)}
-                                    placeholder="Enter price"
+                                    value={nestedMrpPrice}
+                                    onChange={e => setNestedMrpPrice(e.target.value)}
+                                    placeholder="e.g. 1500"
                                 />
                             </div>
+                            <div>
+                                <Label>Off Percent</Label>
+                                <InputField
+                                    type="number"
+                                    value={nestedOffPercent}
+                                    onChange={e => setNestedOffPercent(e.target.value)}
+                                    placeholder="e.g. 20"
+                                />
+                            </div>
+                            {/* Price field is now conditional and read-only if calculated, and comes after Off Percent */}
+                            {nestedMrpPrice && nestedOffPercent ? (
+                                <div>
+                                    <Label>Price</Label>
+                                    <InputField
+                                        type="number"
+                                        value={calculatedNestedPrice}
+                                        onChange={() => {}}
+                                        placeholder="Calculated price"
+                                        readOnly
+                                    />
+                                </div>
+                            ) : null}
                             <div>
                                 <Label>Unit</Label>
                                 <Select
                                     options={[
-                                        { value: "per_kg", label: "Per Kg" },
-                                        { value: "per_pcs", label: "Per Pcs" },
+                                        { value: "kg", label: "Kg" },
+                                        { value: "pcs", label: "Pcs" },
+                                        { value: "gram", label: "Gram" },
                                     ]}
                                     placeholder="Select Unit"
                                     onChange={setNestedUnit}
@@ -559,6 +639,40 @@ export default function Category() {
                                     defaultValue={nestedUnit}
                                 />
                             </div>
+                            {/* New fields start here */}
+                            <div>
+                                <Label>Number of Units</Label>
+                                <InputField
+                                    value={nestedNumberOfUnits}
+                                    onChange={e => setNestedNumberOfUnits(e.target.value)}
+                                    placeholder="e.g. 500g"
+                                />
+                            </div>
+                            <div>
+                                <Label>Number of Pieces</Label>
+                                <InputField
+                                    value={nestedNumberOfPieces}
+                                    onChange={e => setNestedNumberOfPieces(e.target.value)}
+                                    placeholder="e.g. 500g ma 12 - 18 pieces"
+                                />
+                            </div>
+                            <div>
+                                <Label>Keywords</Label>
+                                <InputField
+                                    value={nestedKeywords}
+                                    onChange={e => setNestedKeywords(e.target.value)}
+                                    placeholder="e.g. Bone-in, Small Cuts, Curry Cut"
+                                />
+                            </div>
+                            <div>
+                                <Label>Short Description</Label>
+                                <InputField
+                                    value={nestedShortDescription}
+                                    onChange={e => setNestedShortDescription(e.target.value)}
+                                    placeholder="e.g. Fresh beef chops 500g"
+                                />
+                            </div>
+                            {/* New fields end here */}
                         </div>
                         <div className="mb-4">
                             <Label>Description</Label>
@@ -571,7 +685,13 @@ export default function Category() {
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <Button size="sm" variant="outline" onClick={closeNestedModal}>Close</Button>
-                            <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600">Submit</button>
+                            <button 
+                                type="submit" 
+                                disabled={isCreating}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isCreating ? 'Creating...' : 'Submit'}
+                            </button>
                         </div>
                     </form>
                 </Modal>
@@ -584,7 +704,14 @@ export default function Category() {
                         </p>
                         <div className="flex justify-end gap-2">
                             <Button size="sm" variant="outline" onClick={handleCancelDelete}>Cancel</Button>
-                            <Button size="sm" variant="primary" onClick={handleConfirmDelete}>Delete</Button>
+                            <Button 
+                                size="sm" 
+                                variant="primary" 
+                                onClick={handleConfirmDelete}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? 'Deleting...' : 'Delete'}
+                            </Button>
                         </div>
                     </div>
                 </Modal>
