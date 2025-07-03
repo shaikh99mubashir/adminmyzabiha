@@ -10,18 +10,30 @@ import Label from "../../components/form/Label";
 import InputField from "../../components/form/input/InputField";
 import TextArea from "../../components/form/input/TextArea";
 import TrashIcon from "../../icons/trash.svg";
-import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation } from "../../redux/services/categoriesSlice";
+import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation, useUpdateCategoryMutation } from "../../redux/services/categoriesSlice";
 import Swal from "sweetalert2";
 import { UPLOADS_URL } from "../../constants/api";
 
-const DeleteButtonRenderer = (props: any) => (
-  <button
-    onClick={() => props.onDelete(props.data)}
-    className="text-red-500 hover:text-red-700 p-1"
-    title="Delete"
-  >
-    <img src={TrashIcon} alt="Delete" className="w-5 h-5 inline-block" />
-  </button>
+const ActionsCellRenderer = (props: any) => (
+  <div className="flex gap-2">
+    <button
+      onClick={() => props.onDelete(props.data)}
+      className="text-red-500 hover:text-red-700 p-1"
+      title="Delete"
+    >
+      <img src={TrashIcon} alt="Delete" className="w-5 h-5 inline-block" />
+    </button>
+    <button
+      onClick={() => props.onAvailability(props.data)}
+      className="text-blue-500 hover:text-blue-700 p-1"
+      title="Toggle Availability"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      </svg>
+    </button>
+  </div>
 );
 
 export default function Category() {
@@ -35,6 +47,7 @@ export default function Category() {
     const { data: categoriesData, isLoading, error } = useGetCategoriesQuery(undefined);
     const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
     const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+    const [updateCategory] = useUpdateCategoryMutation();
     console.log(UPLOADS_URL);
     
     // Column Definitions: Defines the columns to be displayed.
@@ -43,9 +56,13 @@ export default function Category() {
             headerName: "Actions",
             field: "actions",
             cellRenderer: (params: any) => (
-                <DeleteButtonRenderer data={params.data} onDelete={handleDeleteClick} />
+                <ActionsCellRenderer
+                    data={params.data}
+                    onDelete={handleDeleteClick}
+                    onAvailability={handleAvailabilityClick}
+                />
             ),
-            width: 80,
+            width: 120,
             filter: false,
             sortable: false,
         },
@@ -112,6 +129,16 @@ export default function Category() {
         { field: "numberOfPieces", headerName: "Number of Pieces", filter: 'agTextColumnFilter' },
         { field: "mrpPrice", headerName: "MRP Price", filter: 'agNumberColumnFilter', valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '' || isNaN(Number(params.value))) ? '-' : params.value },
         { field: "offPercent", headerName: "Off Percent", filter: 'agNumberColumnFilter', valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '' || isNaN(Number(params.value))) ? '-' : params.value },
+        {
+            headerName: "Availability",
+            field: "availability",
+            cellRenderer: (params: any) => (
+                <ActionsCellRenderer data={params.data} onDelete={handleDeleteClick} onAvailability={handleAvailabilityClick} />
+            ),
+            width: 100,
+            filter: false,
+            sortable: false,
+        },
     ]);
 
     const { isOpen, openModal, closeModal } = useModal();
@@ -158,6 +185,10 @@ export default function Category() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
+    const [availabilityModal, setAvailabilityModal] = useState({ open: false, row: null });
+    const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<any>(null);
+
     const handleMainCategoryImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setMainCategoryImage(e.target.files[0]);
@@ -196,11 +227,17 @@ export default function Category() {
                             sub.nestedCategories.forEach((nested: any) => {
                                 flat.push({
                                     _id: nested._id,
+                                    mainCategoryId: main._id,
+                                    subCategoryId: sub._id,
+                                    nestedCategoryId: nested._id,
                                     mainCategory: main.name,
                                     mainCategoryImage: main.image || "",
+                                    mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
                                     subCategory: sub.name,
                                     subCategoryImage: sub.image || "",
+                                    subCategoryAvailable: typeof sub.available === 'boolean' ? sub.available : false,
                                     nestedCategory: nested.name,
+                                    nestedCategoryAvailable: typeof nested.available === 'boolean' ? nested.available : false,
                                     image: nested.image,
                                     description: nested.description,
                                     price: nested.price || "",
@@ -217,11 +254,17 @@ export default function Category() {
                         } else {
                             flat.push({
                                 _id: sub._id,
+                                mainCategoryId: main._id,
+                                subCategoryId: sub._id,
+                                nestedCategoryId: undefined,
                                 mainCategory: main.name,
                                 mainCategoryImage: main.image || "",
+                                mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
                                 subCategory: sub.name,
                                 subCategoryImage: sub.image || "",
+                                subCategoryAvailable: typeof sub.available === 'boolean' ? sub.available : false,
                                 nestedCategory: "",
+                                nestedCategoryAvailable: undefined,
                                 image: "",
                                 description: "",
                                 price: "",
@@ -232,11 +275,17 @@ export default function Category() {
                 } else {
                     flat.push({
                         _id: main._id,
+                        mainCategoryId: main._id,
+                        subCategoryId: undefined,
+                        nestedCategoryId: undefined,
                         mainCategory: main.name,
                         mainCategoryImage: main.image || "",
+                        mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
                         subCategory: "",
                         subCategoryImage: "",
+                        subCategoryAvailable: undefined,
                         nestedCategory: "",
+                        nestedCategoryAvailable: undefined,
                         image: "",
                         description: "",
                         price: "",
@@ -357,6 +406,49 @@ export default function Category() {
     const handleCancelDelete = () => {
         setShowDeleteModal(false);
         setDeleteTarget(null);
+    };
+
+    const handleAvailabilityClick = (row: any) => {
+        setAvailabilityModal({ open: true, row });
+        setSelectedLevel(null);
+        setSelectedCategory(null);
+    };
+
+    const handleLevelSelect = (level: 'main' | 'sub' | 'nested') => {
+        const row = availabilityModal.row as any;
+        let categoryId = '';
+        let categoryName = '';
+        let available = true;
+        if (level === 'main') {
+            categoryId = row.mainCategoryId || row._id;
+            categoryName = row.mainCategory;
+            available = row.mainCategoryAvailable ?? true;
+        } else if (level === 'sub') {
+            categoryId = row.subCategoryId || row._id;
+            categoryName = row.subCategory;
+            available = row.subCategoryAvailable ?? true;
+        } else if (level === 'nested') {
+            categoryId = row.nestedCategoryId || row._id;
+            categoryName = row.nestedCategory;
+            available = row.nestedCategoryAvailable ?? true;
+        }
+        setSelectedLevel(level);
+        setSelectedCategory({ id: categoryId, name: categoryName, available });
+        setAvailabilityModal({ open: false, row: null });
+        setTimeout(() => {
+            Swal.fire({
+                title: `Are you sure?`,
+                text: `Do you want to make '${categoryName}' ${available ? 'unavailable' : 'available'}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${available ? 'make unavailable' : 'make available'}`,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await updateCategory({ id: categoryId, body: { available: !available } });
+                    Swal.fire('Success', `Category '${categoryName}' is now ${!available ? 'available' : 'unavailable'}.`, 'success');
+                }
+            });
+        }, 200);
     };
 
     if (isLoading) {
@@ -724,6 +816,105 @@ export default function Category() {
                     )}
                 </div>
             </Modal>
+            {availabilityModal.open && availabilityModal.row && (() => {
+                const row = availabilityModal.row as any;
+                return (
+                    <Modal isOpen={availabilityModal.open} onClose={() => setAvailabilityModal({ open: false, row: null })} className="max-w-[400px] m-4">
+                        <div className="p-6">
+                            <h2 className="text-lg font-semibold mb-4">Select Category Level</h2>
+                            <div className="flex flex-col gap-4">
+                                {/* Main Category */}
+                                {row.mainCategory && (
+                                    <Button
+                                        onClick={() => handleLevelSelect('main')}
+                                        className="flex items-center justify-between px-6 py-3 rounded-xl  shadow border border-gray-200 hover:bg-blue-50 transition text-lg font-semibold"
+                                    >
+                                        <span className="truncate">{row.mainCategory}</span>
+                                        <span className={`ml-4 px-3 py-1 rounded-full text-xs font-bold ${(
+                                            typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available
+                                        ) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available)
+                                                ? 'Available'
+                                                : 'Unavailable'}
+                                        </span>
+                                    </Button>
+                                )}
+
+                                {/* Sub Category */}
+                                {row.subCategory ? (
+                                    <div className="flex flex-col">
+                                        <Button
+                                            onClick={() => handleLevelSelect('sub')}
+                                            disabled={!(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available)}
+                                            className={`flex items-center justify-between px-6 py-3 rounded-xl border text-lg font-semibold transition
+                                              ${!(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available)
+                                                ? 'bg-gray bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                : ' shadow border-gray-200 hover:bg-blue-50'}
+                                            `}
+                                        >
+                                            <span className="truncate">{row.subCategory}</span>
+                                            <span className={`ml-4 px-3 py-1 rounded-full text-xs font-bold ${(
+                                              typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available
+                                            ) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                              {(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
+                                                ? 'Available'
+                                                : 'Unavailable'}
+                                            </span>
+                                        </Button>
+                                        {!(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) && (
+                                            <span className="text-xs text-gray-400 ml-2 mt-1">Enable main category first</span>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center px-6 py-3 rounded-xl bg-gray-50 border border-dashed border-gray-200 text-gray-400 text-sm">
+                                        No subcategory
+                                    </div>
+                                )}
+
+                                {/* Nested Category */}
+                                {row.nestedCategory ? (
+                                    <div className="flex flex-col">
+                                        <Button
+                                            onClick={() => handleLevelSelect('nested')}
+                                            disabled={
+                                                !(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) ||
+                                                !(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
+                                            }
+                                            className={`flex items-center justify-between px-6 py-3 rounded-xl border text-lg font-semibold transition
+                                              ${(
+                                                !(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) ||
+                                                !(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
+                                              )
+                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                : 'shadow border-gray-200 hover:bg-blue-50'}
+                                            `}
+                                        >
+                                            <span className="truncate">{row.nestedCategory}</span>
+                                            <span className={`ml-4 px-3 py-1 rounded-full text-xs font-bold ${(
+                                              typeof row.nestedCategoryAvailable === 'boolean' ? row.nestedCategoryAvailable : row.available
+                                            ) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                              {(typeof row.nestedCategoryAvailable === 'boolean' ? row.nestedCategoryAvailable : row.available)
+                                                ? 'Available'
+                                                : 'Unavailable'}
+                                            </span>
+                                        </Button>
+                                        {(
+                                            !(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) ||
+                                            !(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
+                                        ) && (
+                                            <span className="text-xs text-gray-400 ml-2 mt-1">Enable parent category first</span>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center px-6 py-3 rounded-xl bg-gray-50 border border-dashed border-gray-200 text-gray-400 text-sm">
+                                        No nested category
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </Modal>
+                );
+            })()}
         </div>
     );
 }

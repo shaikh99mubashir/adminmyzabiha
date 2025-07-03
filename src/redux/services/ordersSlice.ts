@@ -10,9 +10,32 @@ export const ordersSlice = createApi({
             query: (_?: any) => "/orders",
             providesTags: ['Orders'],
         }),
+        createOrder: builder.mutation({
+            query: (orderData) => ({
+                url: '/orders',
+                method: 'POST',
+                body: orderData,
+            }),
+            invalidatesTags: ['Orders'],
+        }),
+        updateOrder: builder.mutation({
+            query: ({ id, orderData }) => ({
+                url: `/orders/${id}`,
+                method: 'PUT',
+                body: orderData,
+            }),
+            invalidatesTags: ['Orders'],
+        }),
+        getOrderById: builder.query({
+            query: (id) => `/orders/${id}`,
+            providesTags: ['Orders'],
+        }),
     }),
 });
 
 export const {
     useGetOrdersQuery,
+    useCreateOrderMutation,
+    useUpdateOrderMutation,
+    useGetOrderByIdQuery,
 } = ordersSlice; 

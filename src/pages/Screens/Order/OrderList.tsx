@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import { useNavigate } from "react-router";
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import PageMeta from "../../../components/common/PageMeta";
 import { AgGridReact } from 'ag-grid-react';
-import { useGetOrdersQuery } from "../../redux/services/ordersSlice";
-import { UPLOADS_URL } from "../../constants/api";
-import Badge from "../../components/ui/badge/Badge";
+import { useGetOrdersQuery } from "../../../redux/services/ordersSlice";
+import { UPLOADS_URL } from "../../../constants/api";
+import Badge from "../../../components/ui/badge/Badge";
+import Button from "../../../components/ui/button/Button";
+import TrashIcon from "../../../icons/trash.svg";
 
-export default function Orders() {
+export default function OrderList() {
     const [rowData, setRowData] = useState<any[]>([]);
+    const navigate = useNavigate();
+    
+    const handleDeleteClick = (row: any) => {
+        console.log('Delete order:', row._id);
+        // Add delete logic here
+    };
     
     // RTK Query hooks
     const { data: ordersData, isLoading, error } = useGetOrdersQuery(undefined);
@@ -81,17 +90,17 @@ export default function Orders() {
             cellRenderer: (params: any) => {
                 const status = params.value;
                 const statusConfig = {
-                    pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-                    confirmed: { color: 'bg-blue-100 text-blue-800', label: 'Confirmed' },
-                    processing: { color: 'bg-purple-100 text-purple-800', label: 'Processing' },
-                    shipped: { color: 'bg-indigo-100 text-indigo-800', label: 'Shipped' },
-                    delivered: { color: 'bg-green-100 text-green-800', label: 'Delivered' },
-                    cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelled' },
+                    pending: { color: 'warning' as const, label: 'Pending' },
+                    confirmed: { color: 'info' as const, label: 'Confirmed' },
+                    processing: { color: 'primary' as const, label: 'Processing' },
+                    shipped: { color: 'info' as const, label: 'Shipped' },
+                    delivered: { color: 'success' as const, label: 'Delivered' },
+                    cancelled: { color: 'error' as const, label: 'Cancelled' },
                 };
                 const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
                 
                 return (
-                    <Badge className={config.color}>
+                    <Badge color={config.color}>
                         {config.label}
                     </Badge>
                 );
@@ -105,14 +114,14 @@ export default function Orders() {
             cellRenderer: (params: any) => {
                 const paymentStatus = params.value;
                 const paymentConfig = {
-                    pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-                    paid: { color: 'bg-green-100 text-green-800', label: 'Paid' },
-                    failed: { color: 'bg-red-100 text-red-800', label: 'Failed' },
+                    pending: { color: 'warning' as const, label: 'Pending' },
+                    paid: { color: 'success' as const, label: 'Paid' },
+                    failed: { color: 'error' as const, label: 'Failed' },
                 };
                 const config = paymentConfig[paymentStatus as keyof typeof paymentConfig] || paymentConfig.pending;
                 
                 return (
-                    <Badge className={config.color}>
+                    <Badge color={config.color}>
                         {config.label}
                     </Badge>
                 );
@@ -133,7 +142,7 @@ export default function Orders() {
             headerName: "Delivery",
             filter: 'agTextColumnFilter',
             cellRenderer: (params: any) => (
-                <Badge className={params.value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                <Badge color={params.value ? 'success' : 'light'}>
                     {params.value ? 'Home Delivery' : 'Pickup'}
                 </Badge>
             ),
@@ -161,6 +170,33 @@ export default function Orders() {
                 </div>
             ),
             width: 150,
+        },
+        {
+            headerName: "Actions",
+            field: "actions",
+            cellRenderer: (params: any) => (
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => navigate(`/order-list/edit/${params.data._id}`)}
+                        className="text-blue-500 hover:text-blue-700 p-1"
+                        title="Edit"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <button
+                        onClick={() => handleDeleteClick(params.data)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                        title="Delete"
+                    >
+                        <img src={TrashIcon} alt="Delete" className="w-5 h-5 inline-block" />
+                    </button>
+                </div>
+            ),
+            width: 120,
+            filter: false,
+            sortable: false,
         },
     ]);
 
@@ -196,11 +232,16 @@ export default function Orders() {
             <PageBreadcrumb pageTitle="Orders" />
 
             <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Orders Management</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-2">
-                        View and manage all customer orders
-                    </p>
+                <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Orders Management</h1>
+                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2">
+                            View and manage all customer orders
+                        </p>
+                    </div>
+                    <Button size="sm" variant="primary" className="w-full sm:w-auto" onClick={() => navigate("/order-list/create")}>
+                        Create Order
+                    </Button>
                 </div>
 
                 <div className="mb-4 flex items-center justify-between">

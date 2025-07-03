@@ -52,6 +52,24 @@ export const categoriesSlice = createApi({
             }),
             invalidatesTags: ['Categories'],
         }),
+
+        updateCategory: builder.mutation({
+            query: ({ id, body }) => {
+                const formData = new FormData();
+                Object.keys(body).forEach(key => {
+                    const value = body[key];
+                    if (value !== undefined && value !== null && value !== '') {
+                        formData.append(key, value);
+                    }
+                });
+                return {
+                    url: `/categories/${id}`,
+                    method: "PUT",
+                    body: formData,
+                };
+            },
+            invalidatesTags: ['Categories'],
+        }),
     }),
 });
 
@@ -59,4 +77,5 @@ export const {
     useGetCategoriesQuery,
     useCreateCategoryMutation,
     useDeleteCategoryMutation,
+    useUpdateCategoryMutation,
 } = categoriesSlice; 
