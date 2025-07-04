@@ -28,7 +28,7 @@ export default function OrderList() {
             headerName: "Order ID",
             filter: 'agTextColumnFilter',
             cellRenderer: (params: any) => (
-                <span className="font-mono text-sm">#{params.data._id.slice(-8)}</span>
+                <span className="font-mono text-sm">{params.data.orderNumber}</span>
             ),
             width: 120,
         },

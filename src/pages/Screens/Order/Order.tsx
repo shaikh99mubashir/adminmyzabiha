@@ -30,8 +30,10 @@ const Order: React.FC = () => {
     subtotal: 0,
     shippingFee: 0,
     total: 0,
+    paymentStatus: "pending",
+    status: "pending",
   });
-  const [selectedItems, setSelectedItems] = useState<Array<{id: string, qty: number, name: string, price: number}>>([]);
+  const [selectedItems, setSelectedItems] = useState<Array<{id: string, qty: number, name: string, price: number, category: any}>>([]);
 
   // Populate form in edit mode
   useEffect(() => {
@@ -47,14 +49,38 @@ const Order: React.FC = () => {
         shippingFee: orderData.shipping || 0,
         total: orderData.orderTotalPrice || 0,
         items: [],
+        paymentStatus: orderData.paymentStatus || "pending",
+        status: orderData.status || "pending",
       });
-      // Items mapping
-      const itemsWithDetails = orderData.items.map((item: any) => ({
-        id: item.category._id,
-        qty: item.quantity,
-        name: item.category.name,
-        price: item.category.price,
-      }));
+      // Items mapping (rehydrate category from categoriesData)
+      const itemsWithDetails = (orderData.items || [])
+        .map((item: any) => {
+          // Find the full category object from categoriesData
+          let foundCategory: any = null;
+          if (categoriesData) {
+            categoriesData.forEach((main: any) => {
+              if (main.subCategories) {
+                main.subCategories.forEach((sub: any) => {
+                  if (sub.nestedCategories) {
+                    sub.nestedCategories.forEach((nested: any) => {
+                      if (nested._id === (item.id || item.category)) {
+                        foundCategory = nested;
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+          return {
+            id: item.id || item.category,
+            qty: item.qty || item.quantity,
+            name: foundCategory ? foundCategory.name : '',
+            price: foundCategory ? foundCategory.price : 0,
+            category: foundCategory,
+          };
+        })
+        .filter((item: any) => item.category); // Only keep items with a valid category
       setSelectedItems(itemsWithDetails);
     }
   }, [isEditMode, orderData, categoriesData]);
@@ -82,13 +108,31 @@ const Order: React.FC = () => {
   };
 
   const handleAddItem = (categoryId: string) => {
+    // Find the full category object from categoriesData
+    let foundCategory = null;
+    if (categoriesData) {
+      categoriesData.forEach((main: any) => {
+        if (main.subCategories) {
+          main.subCategories.forEach((sub: any) => {
+            if (sub.nestedCategories) {
+              sub.nestedCategories.forEach((nested: any) => {
+                if (nested._id === categoryId) {
+                  foundCategory = nested;
+                }
+              });
+            }
+          });
+        }
+      });
+    }
     const category = getNestedCategories().find(cat => cat.value === categoryId);
     if (category && !selectedItems.find(item => item.id === categoryId)) {
       setSelectedItems([...selectedItems, {
         id: categoryId,
         qty: 1,
         name: category.label,
-        price: category.price
+        price: category.price,
+        category: foundCategory || { _id: categoryId, name: category.label, price: category.price },
       }]);
     }
   };
@@ -112,15 +156,19 @@ const Order: React.FC = () => {
         phone: formData.customerPhone,
         address: formData.address
       },
-      items: selectedItems.map(item => ({
-        id: item.id,
-        qty: item.qty
-      })),
+      items: selectedItems
+        .filter(item => item.category && item.qty)
+        .map(item => ({
+          id: item.category._id,
+          qty: item.qty
+        })),
       shippingMethod: formData.delivery ? "delivery" : "pickup",
       paymentMethod: formData.paymentMethod,
       subtotal: selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0),
       shippingFee: formData.delivery ? 10 : 0,
-      total: selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0) + (formData.delivery ? 10 : 0)
+      total: selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0) + (formData.delivery ? 10 : 0),
+      paymentStatus: formData.paymentStatus,
+      status: formData.status,
     };
     try {
       if (isEditMode) {
@@ -160,7 +208,7 @@ const Order: React.FC = () => {
       <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            {isEditMode ? `Edit Order #${id}` : "Create New Order"}
+            {isEditMode ? `Edit Order #${orderData?.orderNumber || id}` : "Create New Order"}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             {isEditMode 
@@ -321,11 +369,32 @@ const Order: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Payment Status</Label>
-                  <InputField value={orderData?.paymentStatus || ""} disabled />
+                  <Select
+                    options={[
+                      { value: "pending", label: "Pending" },
+                      { value: "paid", label: "Paid" },
+                      { value: "failed", label: "Failed" },
+                    ]}
+                    defaultValue={formData.paymentStatus}
+                    onChange={value => setFormData({ ...formData, paymentStatus: value })}
+                    className="dark:bg-gray-900"
+                  />
                 </div>
                 <div>
                   <Label>Order Status</Label>
-                  <InputField value={orderData?.status || ""} disabled />
+                  <Select
+                    options={[
+                      { value: "pending", label: "Pending" },
+                      { value: "confirmed", label: "Confirmed" },
+                      { value: "processing", label: "Processing" },
+                      { value: "shipped", label: "Shipped" },
+                      { value: "delivered", label: "Delivered" },
+                      { value: "cancelled", label: "Cancelled" },
+                    ]}
+                    defaultValue={formData.status}
+                    onChange={value => setFormData({ ...formData, status: value })}
+                    className="dark:bg-gray-900"
+                  />
                 </div>
                 <div>
                   <Label>Subtotal</Label>
