@@ -27,8 +27,8 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: myzabiha.com
-          username: myzabihaa@myzabiha.com
+          username: myzabiha@admin.myzabiha.com
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           local-dir: ./build/
-          server-dir: ./admin.myzabiha.com
+          server-dir: ./
