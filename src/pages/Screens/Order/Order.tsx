@@ -283,7 +283,7 @@ const Order: React.FC = () => {
                   <div key={item.id} className="flex items-center gap-4 p-3 bg-white dark:bg-gray-700 rounded border">
                     <div className="flex-1">
                       <div className="font-medium">{item.name}</div>
-                      <div className="text-sm text-gray-500">₹{item.price} per unit</div>
+                      <div className="text-sm text-gray-500">RS{item.price} per unit</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Label className="text-sm">Qty:</Label>
@@ -295,7 +295,7 @@ const Order: React.FC = () => {
                         className="w-16 px-2 py-1 border rounded text-sm"
                       />
                     </div>
-                    <div className="font-medium">₹{item.price * item.qty}</div>
+                    <div className="font-medium">RS{item.price * item.qty}</div>
                     <button
                       type="button"
                       onClick={() => handleRemoveItem(item.id)}
@@ -316,15 +316,15 @@ const Order: React.FC = () => {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>₹{selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0)}</span>
+                    <span>RS{selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping Fee:</span>
-                    <span>₹{formData.delivery ? 10 : 0}</span>
+                    <span>RS{formData.delivery ? 10 : 0}</span>
                   </div>
                   <div className="flex justify-between font-medium border-t pt-1">
                     <span>Total:</span>
-                    <span>₹{selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0) + (formData.delivery ? 10 : 0)}</span>
+                    <span>RS{selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0) + (formData.delivery ? 10 : 0)}</span>
                   </div>
                 </div>
               </div>
