@@ -67,6 +67,21 @@ export default function Category() {
             sortable: false,
         },
         {
+            field: "categoryType",
+            headerName: "Category Type",
+            filter: 'agTextColumnFilter',
+            cellRenderer: (params: any) => (
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    params.value === 'online_mandi' 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'bg-green-100 text-green-700'
+                }`}>
+                    {params.value === 'online_mandi' ? 'Online Mandi' : 'Product'}
+                </span>
+            ),
+            width: 120,
+        },
+        {
             field: "mainCategory",
             headerName: "Main Category",
             filter: 'agTextColumnFilter',
@@ -143,6 +158,7 @@ export default function Category() {
 
     const { isOpen, openModal, closeModal } = useModal();
     const [categoryName, setCategoryName] = useState("");
+    const [categoryType, setCategoryType] = useState("product");
 
     // Sub Category Modal State
     const { isOpen: isSubOpen, openModal: openSubModal, closeModal: closeSubModal } = useModal();
@@ -186,8 +202,6 @@ export default function Category() {
     const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
     const [availabilityModal, setAvailabilityModal] = useState({ open: false, row: null });
-    const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-    const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
     const handleMainCategoryImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -233,6 +247,7 @@ export default function Category() {
                                     mainCategory: main.name,
                                     mainCategoryImage: main.image || "",
                                     mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
+                                    mainCategoryType: main.categoryType || "product",
                                     subCategory: sub.name,
                                     subCategoryImage: sub.image || "",
                                     subCategoryAvailable: typeof sub.available === 'boolean' ? sub.available : false,
@@ -249,6 +264,7 @@ export default function Category() {
                                     numberOfPieces: nested.numberOfPieces || "",
                                     mrpPrice: nested.mrpPrice || "",
                                     offPercent: nested.offPercent || "",
+                                    categoryType: main.categoryType || "product",
                                 });
                             });
                         } else {
@@ -260,6 +276,7 @@ export default function Category() {
                                 mainCategory: main.name,
                                 mainCategoryImage: main.image || "",
                                 mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
+                                mainCategoryType: main.categoryType || "product",
                                 subCategory: sub.name,
                                 subCategoryImage: sub.image || "",
                                 subCategoryAvailable: typeof sub.available === 'boolean' ? sub.available : false,
@@ -269,6 +286,7 @@ export default function Category() {
                                 description: "",
                                 price: "",
                                 unit: "",
+                                categoryType: main.categoryType || "product",
                             });
                         }
                     });
@@ -281,6 +299,7 @@ export default function Category() {
                         mainCategory: main.name,
                         mainCategoryImage: main.image || "",
                         mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
+                        mainCategoryType: main.categoryType || "product",
                         subCategory: "",
                         subCategoryImage: "",
                         subCategoryAvailable: undefined,
@@ -290,6 +309,7 @@ export default function Category() {
                         description: "",
                         price: "",
                         unit: "",
+                        categoryType: main.categoryType || "product",
                     });
                 }
             });
@@ -308,6 +328,7 @@ export default function Category() {
             const categoryData: any = {
                 name: categoryName,
                 description: mainCategoryDescription,
+                categoryType: categoryType,
             };
             if (mainCategoryImage) {
                 categoryData.image = mainCategoryImage;
@@ -318,6 +339,7 @@ export default function Category() {
             setCategoryName("");
             setMainCategoryImage(null);
             setMainCategoryDescription("");
+            setCategoryType("product");
             closeModal();
             
             Swal.fire({
@@ -410,8 +432,6 @@ export default function Category() {
 
     const handleAvailabilityClick = (row: any) => {
         setAvailabilityModal({ open: true, row });
-        setSelectedLevel(null);
-        setSelectedCategory(null);
     };
 
     const handleLevelSelect = (level: 'main' | 'sub' | 'nested') => {
@@ -432,8 +452,6 @@ export default function Category() {
             categoryName = row.nestedCategory;
             available = row.nestedCategoryAvailable ?? true;
         }
-        setSelectedLevel(level);
-        setSelectedCategory({ id: categoryId, name: categoryName, available });
         setAvailabilityModal({ open: false, row: null });
         setTimeout(() => {
             Swal.fire({
@@ -506,6 +524,33 @@ export default function Category() {
                                 placeholder="Enter category name"
                                 required
                             />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-1 font-medium text-gray-700 dark:text-white">Category Type</label>
+                            <div className="flex gap-4">
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        name="categoryType"
+                                        value="product"
+                                        checked={categoryType === "product"}
+                                        onChange={(e) => setCategoryType(e.target.value)}
+                                        className="mr-2 text-brand-500 focus:ring-brand-500"
+                                    />
+                                    <span className="text-gray-700 dark:text-white">Product</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        name="categoryType"
+                                        value="online_mandi"
+                                        checked={categoryType === "online_mandi"}
+                                        onChange={(e) => setCategoryType(e.target.value)}
+                                        className="mr-2 text-brand-500 focus:ring-brand-500"
+                                    />
+                                    <span className="text-gray-700 dark:text-white">Online Mandi</span>
+                                </label>
+                            </div>
                         </div>
                         <div className="mb-4">
                             <label className="block mb-1 font-medium text-gray-700 dark:text-white">Upload Image</label>

@@ -76,9 +76,9 @@ export default function OrderList() {
             filter: 'agNumberColumnFilter',
             cellRenderer: (params: any) => (
                 <div>
-                    <div className="font-medium">₹{params.value}</div>
-                    <div className="text-xs text-gray-500">Sub: ₹{params.data.subtotal}</div>
-                    <div className="text-xs text-gray-500">Shipping: ₹{params.data.shipping}</div>
+                    <div className="font-medium">RS{params.value}</div>
+                    <div className="text-xs text-gray-500">Sub: RS{params.data.subtotal}</div>
+                    <div className="text-xs text-gray-500">Shipping: RS{params.data.shipping}</div>
                 </div>
             ),
             width: 120,
