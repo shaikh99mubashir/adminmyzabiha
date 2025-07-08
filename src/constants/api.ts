@@ -1,4 +1,4 @@
-const { VITE_NODE_ENV } = import.meta.env; // Use import.meta.env instead of process.env
+// const { VITE_NODE_ENV } = import.meta.env; // Use import.meta.env instead of process.env
 const { hostname } = window.location;
 
 const servers = {
