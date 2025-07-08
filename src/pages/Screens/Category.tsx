@@ -89,10 +89,10 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.mainCategoryImage ? (
                         <img
-                            src={`${UPLOADS_URL}Uploads/${params.data.mainCategoryImage}`}
+                            src={`${UPLOADS_URL}uploads/${params.data.mainCategoryImage}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.mainCategoryImage}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}uploads/${params.data.mainCategoryImage}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
@@ -107,10 +107,10 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.subCategoryImage ? (
                         <img
-                            src={`${UPLOADS_URL}Uploads/${params.data.subCategoryImage}`}
+                            src={`${UPLOADS_URL}uploads/${params.data.subCategoryImage}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.subCategoryImage}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}uploads/${params.data.subCategoryImage}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
@@ -125,10 +125,10 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.image ? (
                         <img
-                            src={`${UPLOADS_URL}Uploads/${params.data.image}`}
+                            src={`${UPLOADS_URL}uploads/${params.data.image}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.image}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}uploads/${params.data.image}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>

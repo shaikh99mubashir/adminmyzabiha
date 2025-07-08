@@ -55,7 +55,7 @@ export default function OrderList() {
                         <div key={index} className="flex items-center gap-2 mb-1 p-1 border-b border-gray-100">
                             {item.category && item.category.image && (
                                 <img
-                                    src={`${UPLOADS_URL}Uploads/${item.category.image}`}
+                                    src={`${UPLOADS_URL}uploads/${item.category.image}`}
                                     alt={item.category.name}
                                     className="w-8 h-8 rounded object-cover"
                                 />
