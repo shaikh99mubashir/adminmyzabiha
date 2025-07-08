@@ -3,15 +3,14 @@ const { hostname } = window.location;
 
 const servers = {
   local: "http://localhost:3050",
-  customDev: "https://api.myzabiha.com/",
-  live: "https://api.myzabiha.com/",
+  live: "https://api.myzabiha.com",
   dummy: "",
 };
 
 
 let URL;
 
-if (VITE_NODE_ENV === "production" && hostname.includes("myzabiha.com")) {
+if (hostname.includes("myzabiha.com")) {
   URL = servers.live;
 } else {
   URL = servers.local;
