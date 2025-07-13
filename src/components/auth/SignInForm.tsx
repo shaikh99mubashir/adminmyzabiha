@@ -7,6 +7,7 @@ import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import { useLoginMutation } from "../../redux/services/authSlice";
 import Swal from "sweetalert2";
+import Cookies from 'js-cookie';
 
 export default function SignInForm() {
   const navigate = useNavigate();
@@ -33,6 +34,12 @@ export default function SignInForm() {
         icon: "error",
       });
     } else if (result.data?.token) {
+      console.log('====================================');
+      console.log("result.data?.token",result.data?.token);
+      console.log('====================================');
+      // Store token and user data in cookies
+      Cookies.set('jwt', result.data?.token);
+      Cookies.set('user', JSON.stringify(result.data));
       // Handle success
       Swal.fire({
         title: "Success",

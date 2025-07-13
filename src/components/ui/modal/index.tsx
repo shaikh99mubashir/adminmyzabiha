@@ -88,7 +88,8 @@ export const Modal: React.FC<ModalProps> = ({
             </svg>
           </button>
         )}
-        <div>{children}</div>
+        {/* FIX: Render children directly, not inside a div */}
+        {children}
       </div>
     </div>
   );

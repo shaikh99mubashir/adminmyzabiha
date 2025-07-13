@@ -38,9 +38,9 @@ export default function OrderList() {
             filter: 'agTextColumnFilter',
             cellRenderer: (params: any) => (
                 <div>
-                    <div className="font-medium">{params.value}</div>
-                    <div className="text-xs text-gray-500">{params.data.customerEmail}</div>
-                    <div className="text-xs text-gray-500">{params.data.customerPhone}</div>
+                    <div className="font-medium text-gray-800 dark:text-white">{params.value}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{params.data.customerEmail}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{params.data.customerPhone}</div>
                 </div>
             ),
             width: 200,
@@ -61,8 +61,8 @@ export default function OrderList() {
                                 />
                             )}
                             <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium truncate">{item.category?.name || 'Unknown'}</div>
-                                <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                                <div className="text-sm font-medium truncate text-gray-800 dark:text-white">{item.category?.name || 'Unknown'}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity}</div>
                             </div>
                         </div>
                     ))}
@@ -76,9 +76,9 @@ export default function OrderList() {
             filter: 'agNumberColumnFilter',
             cellRenderer: (params: any) => (
                 <div>
-                    <div className="font-medium">RS{params.value}</div>
-                    <div className="text-xs text-gray-500">Sub: RS{params.data.subtotal}</div>
-                    <div className="text-xs text-gray-500">Shipping: RS{params.data.shipping}</div>
+                    <div className="font-medium text-gray-800 dark:text-white">RS{params.value}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Sub: RS{params.data.subtotal}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Shipping: RS{params.data.shipping}</div>
                 </div>
             ),
             width: 120,
@@ -133,7 +133,7 @@ export default function OrderList() {
             headerName: "Payment Method",
             filter: 'agTextColumnFilter',
             cellRenderer: (params: any) => (
-                <span className="capitalize">{params.value}</span>
+                <span className="capitalize text-gray-800 dark:text-white">{params.value}</span>
             ),
             width: 120,
         },
@@ -153,7 +153,7 @@ export default function OrderList() {
             headerName: "Address",
             filter: 'agTextColumnFilter',
             cellRenderer: (params: any) => (
-                <div className="max-w-xs text-sm">
+                <div className="max-w-xs text-sm text-gray-800 dark:text-white">
                     {params.value}
                 </div>
             ),
@@ -165,8 +165,8 @@ export default function OrderList() {
             filter: 'agDateColumnFilter',
             cellRenderer: (params: any) => (
                 <div>
-                    <div className="text-sm">{new Date(params.value).toLocaleDateString()}</div>
-                    <div className="text-xs text-gray-500">{new Date(params.value).toLocaleTimeString()}</div>
+                    <div className="text-sm text-gray-800 dark:text-white">{new Date(params.value).toLocaleDateString()}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{new Date(params.value).toLocaleTimeString()}</div>
                 </div>
             ),
             width: 150,
