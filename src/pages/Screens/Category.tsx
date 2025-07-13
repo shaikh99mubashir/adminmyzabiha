@@ -9,28 +9,38 @@ import Select from "../../components/form/Select";
 import Label from "../../components/form/Label";
 import InputField from "../../components/form/input/InputField";
 import TextArea from "../../components/form/input/TextArea";
-import TrashIcon from "../../icons/trash.svg";
 import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation, useUpdateCategoryMutation } from "../../redux/services/categoriesSlice";
 import Swal from "sweetalert2";
 import { UPLOADS_URL } from "../../constants/api";
 
 const ActionsCellRenderer = (props: any) => (
-  <div className="flex gap-2">
-    <button
-      onClick={() => props.onDelete(props.data)}
-      className="text-red-500 hover:text-red-700 p-1"
-      title="Delete"
-    >
-      <img src={TrashIcon} alt="Delete" className="w-5 h-5 inline-block" />
-    </button>
+  <div className="flex gap-2 items-center justify-center h-full">
     <button
       onClick={() => props.onAvailability(props.data)}
-      className="text-blue-500 hover:text-blue-700 p-1"
-      title="Toggle Availability"
+      className="flex items-center justify-center w-7 h-7 text-blue-500 hover:text-blue-700"
+      title="Availability"
     >
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
         <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      </svg>
+    </button>
+    <button
+      onClick={() => props.onEdit(props.data)}
+      className="flex items-center justify-center w-7 h-7 text-blue-500 hover:text-blue-700"
+      title="Edit"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+      </svg>
+    </button>
+    <button
+      onClick={() => props.onDelete(props.data)}
+      className="flex items-center justify-center w-7 h-7 text-red-500 hover:text-red-700"
+      title="Delete"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 7.5V19.125A2.625 2.625 0 0 0 8.625 21.75h6.75A2.625 2.625 0 0 0 18 19.125V7.5M9.75 10.5v6.75M14.25 10.5v6.75M4.5 7.5h15m-10.125 0V5.625A1.125 1.125 0 0 1 10.5 4.5h3a1.125 1.125 0 0 1 1.125 1.125V7.5" />
       </svg>
     </button>
   </div>
@@ -58,6 +68,7 @@ export default function Category() {
             cellRenderer: (params: any) => (
                 <ActionsCellRenderer
                     data={params.data}
+                    onEdit={handleEditClick}
                     onDelete={handleDeleteClick}
                     onAvailability={handleAvailabilityClick}
                 />
@@ -89,10 +100,10 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.mainCategoryImage ? (
                         <img
-                            src={`${UPLOADS_URL}Uploads/${params.data.mainCategoryImage}`}
+                            src={`${UPLOADS_URL}uploads/${params.data.mainCategoryImage}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.mainCategoryImage}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}uploads/${params.data.mainCategoryImage}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
@@ -107,10 +118,10 @@ export default function Category() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {params.data && params.data.subCategoryImage ? (
                         <img
-                            src={`${UPLOADS_URL}Uploads/${params.data.subCategoryImage}`}
+                            src={`${UPLOADS_URL}uploads/${params.data.subCategoryImage}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.subCategoryImage}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}uploads/${params.data.subCategoryImage}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
@@ -123,19 +134,28 @@ export default function Category() {
             filter: 'agTextColumnFilter',
             cellRenderer: (params: any) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {params.data && params.data.image ? (
+                    {params.data && params.data.nestedCategoryImage && typeof params.data.nestedCategoryImage === 'string' ? (
                         <img
-                            src={`${UPLOADS_URL}Uploads/${params.data.image}`}
+                            src={`${UPLOADS_URL}uploads/${params.data.nestedCategoryImage}`}
                             alt="img"
                             style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}Uploads/${params.data.image}`)}
+                            onClick={() => setSelectedImageUrl(`${UPLOADS_URL}uploads/${params.data.nestedCategoryImage}`)}
                         />
                     ) : null}
                     <span>{params.value}</span>
                 </div>
             )
         },
-        { field: "description", headerName: "Description", filter: false },
+        {
+            field: "description",
+            headerName: "Description",
+            filter: false,
+            valueGetter: (params: any) =>
+                params.data.nestedCategoryDescription ||
+                params.data.subCategoryDescription ||
+                params.data.mainCategoryDescription ||
+                "",
+        },
         { field: "price", headerName: "Price", filter: 'agNumberColumnFilter', valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '' || isNaN(Number(params.value))) ? '-' : params.value },
         { field: "unit", headerName: "Unit", filter: 'agTextColumnFilter' },
         { field: "numberOfUnits", headerName: "Number of Units", filter: 'agTextColumnFilter' },
@@ -148,7 +168,7 @@ export default function Category() {
             headerName: "Availability",
             field: "availability",
             cellRenderer: (params: any) => (
-                <ActionsCellRenderer data={params.data} onDelete={handleDeleteClick} onAvailability={handleAvailabilityClick} />
+                <ActionsCellRenderer data={params.data} onEdit={handleEditClick} onDelete={handleDeleteClick} onAvailability={handleAvailabilityClick} />
             ),
             width: 100,
             filter: false,
@@ -203,6 +223,12 @@ export default function Category() {
 
     const [availabilityModal, setAvailabilityModal] = useState({ open: false, row: null });
 
+    // Edit modal state
+    const [editSelectOpen, setEditSelectOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editType, setEditType] = useState<'main' | 'sub' | 'nested' | null>(null);
+    const [editData, setEditData] = useState<any>(null);
+
     const handleMainCategoryImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setMainCategoryImage(e.target.files[0]);
@@ -248,16 +274,17 @@ export default function Category() {
                                     mainCategoryImage: main.image || "",
                                     mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
                                     mainCategoryType: main.categoryType || "product",
+                                    mainCategoryDescription: main.description || "",
                                     subCategory: sub.name,
                                     subCategoryImage: sub.image || "",
                                     subCategoryAvailable: typeof sub.available === 'boolean' ? sub.available : false,
+                                    subCategoryDescription: sub.description || "",
                                     nestedCategory: nested.name,
                                     nestedCategoryAvailable: typeof nested.available === 'boolean' ? nested.available : false,
-                                    image: nested.image,
-                                    description: nested.description,
+                                    nestedCategoryDescription: nested.description || "",
+                                    nestedCategoryImage: nested.image || "",
                                     price: nested.price || "",
                                     unit: nested.unit || "",
-                                    // New fields for nested categories
                                     numberOfUnits: nested.numberOfUnits || "",
                                     keywords: nested.keywords || "",
                                     shortDescription: nested.shortDescription || "",
@@ -277,15 +304,23 @@ export default function Category() {
                                 mainCategoryImage: main.image || "",
                                 mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
                                 mainCategoryType: main.categoryType || "product",
+                                mainCategoryDescription: main.description || "",
                                 subCategory: sub.name,
                                 subCategoryImage: sub.image || "",
                                 subCategoryAvailable: typeof sub.available === 'boolean' ? sub.available : false,
+                                subCategoryDescription: sub.description || "",
                                 nestedCategory: "",
                                 nestedCategoryAvailable: undefined,
-                                image: "",
-                                description: "",
+                                nestedCategoryDescription: "",
+                                nestedCategoryImage: "",
                                 price: "",
                                 unit: "",
+                                numberOfUnits: "",
+                                keywords: "",
+                                shortDescription: "",
+                                numberOfPieces: "",
+                                mrpPrice: "",
+                                offPercent: "",
                                 categoryType: main.categoryType || "product",
                             });
                         }
@@ -300,15 +335,23 @@ export default function Category() {
                         mainCategoryImage: main.image || "",
                         mainCategoryAvailable: typeof main.available === 'boolean' ? main.available : false,
                         mainCategoryType: main.categoryType || "product",
+                        mainCategoryDescription: main.description || "",
                         subCategory: "",
                         subCategoryImage: "",
                         subCategoryAvailable: undefined,
+                        subCategoryDescription: "",
                         nestedCategory: "",
                         nestedCategoryAvailable: undefined,
-                        image: "",
-                        description: "",
+                        nestedCategoryDescription: "",
+                        nestedCategoryImage: "",
                         price: "",
                         unit: "",
+                        numberOfUnits: "",
+                        keywords: "",
+                        shortDescription: "",
+                        numberOfPieces: "",
+                        mrpPrice: "",
+                        offPercent: "",
                         categoryType: main.categoryType || "product",
                     });
                 }
@@ -398,6 +441,13 @@ export default function Category() {
         }
     };
 
+    const handleEditClick = (row: any) => {
+        setEditData({ ...row });
+        setEditSelectOpen(true);
+    };
+
+    // Remove showEditForm helper for now
+
     const handleDeleteClick = (row: any) => {
         setDeleteTarget(row);
         setShowDeleteModal(true);
@@ -485,6 +535,68 @@ export default function Category() {
         );
     }
 
+    const handleEditSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        console.log('Update form submitted');
+        console.log('editType:', editType);
+        console.log('editData:', editData);
+        try {
+            let categoryData: any = {};
+            if (editType === 'main') {
+                categoryData = {
+                    name: editData.mainCategory,
+                    description: editData.mainCategoryDescription,
+                    categoryType: editData.mainCategoryType,
+                };
+                if (editData.mainCategoryImage && typeof editData.mainCategoryImage !== 'string') {
+                    categoryData.image = editData.mainCategoryImage;
+                }
+                console.log('main categoryData:', categoryData);
+                const res = await updateCategory({ id: editData.mainCategoryId || editData._id, body: categoryData }).unwrap();
+                console.log('updateCategory response:', res);
+            } else if (editType === 'sub') {
+                categoryData = {
+                    name: editData.subCategory,
+                    description: editData.subCategoryDescription,
+                    parent: editData.mainCategoryId,
+                };
+                if (editData.subCategoryImage && typeof editData.subCategoryImage !== 'string') {
+                    categoryData.image = editData.subCategoryImage;
+                }
+                console.log('sub categoryData:', categoryData);
+                const res = await updateCategory({ id: editData.subCategoryId || editData._id, body: categoryData }).unwrap();
+                console.log('updateCategory response:', res);
+            } else if (editType === 'nested') {
+                categoryData = {
+                    name: editData.nestedCategory,
+                    description: editData.nestedCategoryDescription,
+                    price: editData.price,
+                    unit: editData.unit,
+                    numberOfUnits: editData.numberOfUnits,
+                    keywords: editData.keywords,
+                    shortDescription: editData.shortDescription,
+                    numberOfPieces: editData.numberOfPieces,
+                    mrpPrice: editData.mrpPrice,
+                    offPercent: editData.offPercent,
+                    parent: editData.subCategoryId,
+                };
+                if (editData.nestedCategoryImage && typeof editData.nestedCategoryImage !== 'string') {
+                    categoryData.image = editData.nestedCategoryImage;
+                }
+                console.log('nested categoryData:', categoryData);
+                const res = await updateCategory({ id: editData.nestedCategoryId || editData._id, body: categoryData }).unwrap();
+                console.log('updateCategory response:', res);
+            }
+            setIsEditOpen(false);
+            setEditType(null);
+            setEditData(null);
+            Swal.fire({ title: "Success", text: "Category updated successfully!", icon: "success" });
+        } catch (error: any) {
+            console.error('updateCategory error:', error);
+            Swal.fire({ title: "Error", text: error?.data?.message || "Failed to update category", icon: "error" });
+        }
+    };
+
     return (
         <div>
             <PageMeta
@@ -513,7 +625,7 @@ export default function Category() {
                 </div>
                 <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[500px] m-4">
                     <form className="p-6" onSubmit={handleSubmit}>
-                        <h2 className="text-xl font-semibold mb-4">Add Main Category</h2>
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Add Main Category</h2>
                         <div className="mb-4">
                             <label className="block mb-1 font-medium text-gray-700 dark:text-white">Name</label>
                             <input
@@ -584,7 +696,7 @@ export default function Category() {
                 </Modal>
                 <Modal isOpen={isSubOpen} onClose={closeSubModal} className="max-w-[500px] m-4">
                     <form className="p-6" onSubmit={handleSubCategorySubmit}>
-                        <h2 className="text-xl font-semibold mb-4">Add Sub Category</h2>
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Add Sub Category</h2>
                         <div className="mb-4">
                             <Label>Main Category</Label>
                             <Select
@@ -685,7 +797,7 @@ export default function Category() {
                             });
                         }
                     }}>
-                        <h2 className="text-xl font-semibold mb-4">Add Nested Category</h2>
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Add Nested Category</h2>
                         <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
                             <div>
                                 <Label>Main Category</Label>
@@ -835,8 +947,8 @@ export default function Category() {
                 {/* Delete Confirmation Modal */}
                 <Modal isOpen={showDeleteModal} onClose={handleCancelDelete} className="max-w-[400px] m-4">
                     <div className="p-6">
-                        <h2 className="text-xl font-semibold mb-4">Delete Confirmation</h2>
-                        <p className="mb-6">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Delete Confirmation</h2>
+                        <p className="mb-6 text-gray-700 dark:text-gray-200">
                             Are you sure you want to delete {deleteTarget?.nestedCategory ? 'nested category' : deleteTarget?.subCategory ? 'sub category' : 'main category'}?
                         </p>
                         <div className="flex justify-end gap-2">
@@ -852,6 +964,285 @@ export default function Category() {
                         </div>
                     </div>
                 </Modal>
+                {/* Category selection modal */}
+                <Modal isOpen={editSelectOpen} onClose={() => setEditSelectOpen(false)} className="max-w-[400px] m-4">
+                    <div className="p-6">
+                        <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Which category do you want to edit?</h2>
+                        <div className="flex flex-col gap-4">
+                            <Button onClick={() => { setEditType('main'); setIsEditOpen(true); setEditSelectOpen(false); }}>Main Category</Button>
+                            <Button onClick={() => { setEditType('sub'); setIsEditOpen(true); setEditSelectOpen(false); }} disabled={!editData?.subCategory}>Sub Category</Button>
+                            <Button onClick={() => { setEditType('nested'); setIsEditOpen(true); setEditSelectOpen(false); }} disabled={!editData?.nestedCategory}>Nested Category</Button>
+                        </div>
+                    </div>
+                </Modal>
+                {/* Edit modal */}
+                <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} className="max-w-[1000px] m-4">
+                    {editType && editData && (
+                        <>
+                            <form className="p-6" onSubmit={handleEditSubmit}>
+                                <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Edit {editType === 'main' ? 'Main' : editType === 'sub' ? 'Sub' : 'Nested'} Category</h2>
+                                {/* Render fields based on editType, pre-filled with editData */}
+                                {/* Example for nested: */}
+                                {editType === 'nested' && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+                                        <div>
+                                            <Label>Main Category</Label>
+                                            <Select
+                                                options={mainCategoryOptionsForNested}
+                                                placeholder="Select Main Category"
+                                                value={editData.mainCategoryId || ""}
+                                                onChange={value => setEditData((prev: any) => ({ ...prev, mainCategoryId: value }))}
+                                                className="dark:bg-dark-900"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Sub Category</Label>
+                                            <Select
+                                                options={
+                                                    editData.mainCategoryId && (subCategoryOptionsForNested as Record<string, any[]>)[editData.mainCategoryId]
+                                                        ? (subCategoryOptionsForNested as Record<string, any[]>)[editData.mainCategoryId]
+                                                        : []
+                                                }
+                                                placeholder="Select Sub Category"
+                                                value={editData.subCategoryId || ""}
+                                                onChange={value => setEditData((prev: any) => ({ ...prev, subCategoryId: value }))}
+                                                className="dark:bg-dark-900"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Name</Label>
+                                            <InputField
+                                                value={editData.nestedCategory}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, nestedCategory: e.target.value }))}
+                                                placeholder="Enter nested category name"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Upload Image</Label>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    const files = e.target.files;
+                                                    if (files && files[0]) {
+                                                        setEditData((prev: any) => ({ ...prev, nestedCategoryImage: files[0] }));
+                                                    }
+                                                }}
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800 dark:bg-gray-900 dark:text-white dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                            />
+                                            {editData.nestedCategoryImage && typeof editData.nestedCategoryImage === 'string' && (
+                                                <img src={`${UPLOADS_URL}uploads/${editData.nestedCategoryImage}`} alt="Current" className="mt-2 rounded w-20 h-20 object-cover" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <Label>MRP Price</Label>
+                                            <InputField
+                                                type="number"
+                                                value={editData.mrpPrice}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, mrpPrice: e.target.value }))}
+                                                placeholder="e.g. 1500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Off Percent</Label>
+                                            <InputField
+                                                type="number"
+                                                value={editData.offPercent}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, offPercent: e.target.value }))}
+                                                placeholder="e.g. 20"
+                                            />
+                                        </div>
+                                        {/* Price field is now conditional and read-only if calculated, and comes after Off Percent */}
+                                        {nestedMrpPrice && nestedOffPercent ? (
+                                            <div>
+                                                <Label>Price</Label>
+                                                <InputField
+                                                    type="number"
+                                                    value={calculatedNestedPrice}
+                                                    onChange={() => {}}
+                                                    placeholder="Calculated price"
+                                                    readOnly
+                                                />
+                                            </div>
+                                        ) : null}
+                                        <div>
+                                            <Label>Unit</Label>
+                                            <Select
+                                                options={[
+                                                    { value: "kg", label: "Kg" },
+                                                    { value: "pcs", label: "Pcs" },
+                                                    { value: "gram", label: "Gram" },
+                                                ]}
+                                                placeholder="Select Unit"
+                                                value={editData.unit || ""}
+                                                onChange={value => setEditData((prev: any) => ({ ...prev, unit: value }))}
+                                                className="dark:bg-dark-900"
+                                            />
+                                        </div>
+                                        {/* New fields start here */}
+                                        <div>
+                                            <Label>Number of Units</Label>
+                                            <InputField
+                                                value={editData.numberOfUnits}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, numberOfUnits: e.target.value }))}
+                                                placeholder="e.g. 500g"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Number of Pieces</Label>
+                                            <InputField
+                                                value={editData.numberOfPieces}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, numberOfPieces: e.target.value }))}
+                                                placeholder="e.g. 500g ma 12 - 18 pieces"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Keywords</Label>
+                                            <InputField
+                                                value={editData.keywords}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, keywords: e.target.value }))}
+                                                placeholder="e.g. Bone-in, Small Cuts, Curry Cut"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Short Description</Label>
+                                            <InputField
+                                                value={editData.shortDescription}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, shortDescription: e.target.value }))}
+                                                placeholder="e.g. Fresh beef chops 500g"
+                                            />
+                                        </div>
+                                        {/* New fields end here */}
+                                    </div>
+                                )}
+                                {/* Similar for main/sub: use value={editData.field} and onChange to update editData */}
+                                {editType === 'main' && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <Label>Name</Label>
+                                            <InputField
+                                                value={editData.mainCategory}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, mainCategory: e.target.value }))}
+                                                placeholder="Enter category name"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Category Type</Label>
+                                            <div className="flex gap-4">
+                                                <label className="flex items-center">
+                                                    <input
+                                                        type="radio"
+                                                        name="categoryType"
+                                                        value="product"
+                                                        checked={editData.mainCategoryType === "product"}
+                                                        onChange={e => setEditData((prev: any) => ({ ...prev, mainCategoryType: e.target.value }))}
+                                                        className="mr-2 text-brand-500 focus:ring-brand-500"
+                                                    />
+                                                    <span className="text-gray-700 dark:text-white">Product</span>
+                                                </label>
+                                                <label className="flex items-center">
+                                                    <input
+                                                        type="radio"
+                                                        name="categoryType"
+                                                        value="online_mandi"
+                                                        checked={editData.mainCategoryType === "online_mandi"}
+                                                        onChange={e => setEditData((prev: any) => ({ ...prev, mainCategoryType: e.target.value }))}
+                                                        className="mr-2 text-brand-500 focus:ring-brand-500"
+                                                    />
+                                                    <span className="text-gray-700 dark:text-white">Online Mandi</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Label>Upload Image</Label>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    const files = e.target.files;
+                                                    if (files && files[0]) {
+                                                        setEditData((prev: any) => ({ ...prev, mainCategoryImage: files[0] }));
+                                                    }
+                                                }}
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800 dark:bg-gray-900 dark:text-white dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                            />
+                                            {editData.mainCategoryImage && typeof editData.mainCategoryImage === 'string' && (
+                                                <img src={`${UPLOADS_URL}uploads/${editData.mainCategoryImage}`} alt="Current" className="mt-2 rounded w-20 h-20 object-cover" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <Label>Description</Label>
+                                            <TextArea
+                                                value={editData.mainCategoryDescription}
+                                                onChange={value => setEditData((prev: any) => ({ ...prev, mainCategoryDescription: value }))}
+                                                placeholder="Enter description"
+                                                rows={3}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                {editType === 'sub' && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <Label>Main Category</Label>
+                                            <Select
+                                                options={mainCategoryOptionsForSub}
+                                                placeholder="Select Main Category"
+                                                value={editData.mainCategoryId || ""}
+                                                onChange={value => setEditData((prev: any) => ({ ...prev, mainCategoryId: value }))}
+                                                className="dark:bg-dark-900"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Name</Label>
+                                            <InputField
+                                                value={editData.subCategory}
+                                                onChange={e => setEditData((prev: any) => ({ ...prev, subCategory: e.target.value }))}
+                                                placeholder="Enter sub category name"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Upload Image</Label>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    const files = e.target.files;
+                                                    if (files && files[0]) {
+                                                        setEditData((prev: any) => ({ ...prev, subCategoryImage: files[0] }));
+                                                    }
+                                                }}
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800 dark:bg-gray-900 dark:text-white dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                            />
+                                            {editData.subCategoryImage && typeof editData.subCategoryImage === 'string' && (
+                                                <img src={`${UPLOADS_URL}uploads/${editData.subCategoryImage}`} alt="Current" className="mt-2 rounded w-20 h-20 object-cover" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <Label>Description</Label>
+                                            <TextArea
+                                                value={editData.subCategoryDescription}
+                                                onChange={value => setEditData((prev: any) => ({ ...prev, subCategoryDescription: value }))}
+                                                placeholder="Enter description"
+                                                rows={3}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </form>
+                            <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-dark-900 z-10 px-6 py-4 flex justify-end gap-2 border-t">
+                                <Button size="sm" variant="outline" onClick={() => { setIsEditOpen(false); setEditType(null); setEditData(null); }}>Close</Button>
+                                <button
+                                    type="submit"
+                                    onClick={() => handleEditSubmit()}
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Update
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </Modal>
             </div>
             {/* Image Popup Modal */}
             <Modal isOpen={!!selectedImageUrl} onClose={() => setSelectedImageUrl(null)} className="max-w-[420px] max-h-[420px] flex items-center justify-center">
@@ -866,7 +1257,7 @@ export default function Category() {
                 return (
                     <Modal isOpen={availabilityModal.open} onClose={() => setAvailabilityModal({ open: false, row: null })} className="max-w-[400px] m-4">
                         <div className="p-6">
-                            <h2 className="text-lg font-semibold mb-4">Select Category Level</h2>
+                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Select Category Level</h2>
                             <div className="flex flex-col gap-4">
                                 {/* Main Category */}
                                 {row.mainCategory && (
