@@ -74,8 +74,10 @@ const othersItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Settings",
     subItems: [
-      { name: "soon", path: "/", pro: false },
-      { name: "soon", path: "/", pro: false },
+      { name: "Country", path: "/countries", pro: false },
+      { name: "State", path: "/states", pro: false },
+      { name: "City", path: "/cities", pro: false },
+      { name: "Area", path: "/area", pro: false },
     ],
   },
   // {

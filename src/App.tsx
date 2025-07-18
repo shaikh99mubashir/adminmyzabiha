@@ -24,6 +24,10 @@ import Category from "./pages/Screens/Category";
 import AuthRoute from "./routes/auth-route";
 import OrderList from "./pages/Screens/Order/OrderList";
 import Order from "./pages/Screens/Order/Order";
+import Countries from "./pages/Screens/Settings/Countries";
+import States from "./pages/Screens/Settings/States";
+import Cities from "./pages/Screens/Settings/Cities";
+import Areas from "./pages/Screens/Settings/Areas";
 
 // Global Auth Check Component
 const AuthCheck = ({ children }: { children: React.ReactNode }) => {
@@ -71,6 +75,10 @@ export default function App() {
               <Route path="/order-list" element={<OrderList />} />
               <Route path="/order-list/create" element={<Order />} />
               <Route path="/order-list/edit/:id" element={<Order />} />
+              <Route path="/countries" element={<Countries />} />
+              <Route path="/states" element={<States />} />
+              <Route path="/cities" element={<Cities />} />
+              <Route path="/area" element={<Areas />} />
 
               {/* Forms */}
               <Route path="/form-elements" element={<FormElements />} />
