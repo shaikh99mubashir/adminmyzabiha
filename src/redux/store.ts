@@ -12,6 +12,7 @@ import { countriesSlice } from './services/countriesSlice';
 import { statesSlice } from './services/statesSlice';
 import { citiesSlice } from './services/citiesSlice';
 import { areasSlice } from './services/areasSlice';
+import { currenciesSlice } from './services/currenciesSlice';
 import counterReducer from './slices/counterSlice';
 
 const persistConfig = {
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
     [statesSlice.reducerPath]: statesSlice.reducer,
     [citiesSlice.reducerPath]: citiesSlice.reducer,
     [areasSlice.reducerPath]: areasSlice.reducer,
+    [currenciesSlice.reducerPath]: currenciesSlice.reducer,
     counter: counterReducer,
 });
 
@@ -40,7 +42,7 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: false,
-        }).concat(authSlice.middleware, productSlice.middleware, userSlice.middleware, categoriesSlice.middleware, ordersSlice.middleware, countriesSlice.middleware, statesSlice.middleware, citiesSlice.middleware, areasSlice.middleware),
+        }).concat(authSlice.middleware, productSlice.middleware, userSlice.middleware, categoriesSlice.middleware, ordersSlice.middleware, countriesSlice.middleware, statesSlice.middleware, citiesSlice.middleware, areasSlice.middleware, currenciesSlice.middleware),
 });
 
 setupListeners(store.dispatch);

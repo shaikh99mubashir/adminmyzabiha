@@ -28,6 +28,7 @@ import Countries from "./pages/Screens/Settings/Countries";
 import States from "./pages/Screens/Settings/States";
 import Cities from "./pages/Screens/Settings/Cities";
 import Areas from "./pages/Screens/Settings/Areas";
+import Currencies from "./pages/Screens/Settings/Currencies";
 
 // Global Auth Check Component
 const AuthCheck = ({ children }: { children: React.ReactNode }) => {
@@ -79,6 +80,7 @@ export default function App() {
               <Route path="/states" element={<States />} />
               <Route path="/cities" element={<Cities />} />
               <Route path="/area" element={<Areas />} />
+              <Route path="/currencies" element={<Currencies />} />
 
               {/* Forms */}
               <Route path="/form-elements" element={<FormElements />} />

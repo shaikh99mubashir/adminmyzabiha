@@ -78,6 +78,7 @@ const othersItems: NavItem[] = [
       { name: "State", path: "/states", pro: false },
       { name: "City", path: "/cities", pro: false },
       { name: "Area", path: "/area", pro: false },
+      { name: "Currency", path: "/currencies", pro: false },
     ],
   },
   // {
