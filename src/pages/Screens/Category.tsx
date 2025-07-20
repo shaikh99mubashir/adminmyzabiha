@@ -745,7 +745,7 @@ export default function Category() {
                         </div>
                     </form>
                 </Modal>
-                <Modal isOpen={isNestedOpen} onClose={closeNestedModal} className="max-w-[600px] xl:max-w-[1000px] m-4">
+                <Modal isOpen={isNestedOpen} onClose={closeNestedModal} className="max-w-[600px] xl:max-w-[1000px] m-4 overflow-y-auto max-h-[90vh]">
                     <form className="p-6" onSubmit={async (e) => {
                         e.preventDefault();
                         try {
