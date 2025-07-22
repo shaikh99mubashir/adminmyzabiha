@@ -15,6 +15,7 @@ import { areasSlice } from './services/areasSlice';
 import { currenciesSlice } from './services/currenciesSlice';
 import { qurbaniTypesSlice } from './services/qurbaniTypesSlice';
 import { qurbaniAnimalTypesSlice } from './services/qurbaniAnimalTypesSlice';
+import { vouchersSlice } from './services/vouchersSlice';
 import counterReducer from './slices/counterSlice';
 
 const persistConfig = {
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
     [currenciesSlice.reducerPath]: currenciesSlice.reducer,
     [qurbaniTypesSlice.reducerPath]: qurbaniTypesSlice.reducer,
     [qurbaniAnimalTypesSlice.reducerPath]: qurbaniAnimalTypesSlice.reducer,
+    [vouchersSlice.reducerPath]: vouchersSlice.reducer,
     counter: counterReducer,
 });
 
@@ -58,7 +60,8 @@ export const store = configureStore({
             areasSlice.middleware,
             currenciesSlice.middleware,
             qurbaniTypesSlice.middleware,
-            qurbaniAnimalTypesSlice.middleware
+            qurbaniAnimalTypesSlice.middleware,
+            vouchersSlice.middleware
         ),
 });
 
