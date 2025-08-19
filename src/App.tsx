@@ -24,6 +24,14 @@ import Category from "./pages/Screens/Category";
 import AuthRoute from "./routes/auth-route";
 import OrderList from "./pages/Screens/Order/OrderList";
 import Order from "./pages/Screens/Order/Order";
+import Countries from "./pages/Screens/Settings/Countries";
+import States from "./pages/Screens/Settings/States";
+import Cities from "./pages/Screens/Settings/Cities";
+import Areas from "./pages/Screens/Settings/Areas";
+import Currencies from "./pages/Screens/Settings/Currencies";
+import QurbaniTypes from "./pages/Screens/Qarbani/QurbaniTypes";
+import QurbaniAnimalTypes from "./pages/Screens/Qarbani/QurbaniAnimalTypes";
+import Vouchers from "./pages/Screens/Settings/Vouchers";
 
 // Global Auth Check Component
 const AuthCheck = ({ children }: { children: React.ReactNode }) => {
@@ -71,6 +79,14 @@ export default function App() {
               <Route path="/order-list" element={<OrderList />} />
               <Route path="/order-list/create" element={<Order />} />
               <Route path="/order-list/edit/:id" element={<Order />} />
+              <Route path="/countries" element={<Countries />} />
+              <Route path="/states" element={<States />} />
+              <Route path="/cities" element={<Cities />} />
+              <Route path="/area" element={<Areas />} />
+              <Route path="/currencies" element={<Currencies />} />
+              <Route path="/vouchers" element={<Vouchers />} />
+              <Route path="/qurbani-types" element={<QurbaniTypes />} />
+              <Route path="/qurbani-animals" element={<QurbaniAnimalTypes />} />
 
               {/* Forms */}
               <Route path="/form-elements" element={<FormElements />} />

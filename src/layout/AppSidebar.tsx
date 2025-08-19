@@ -15,6 +15,7 @@ import {
   // TableIcon,
   // UserCircleIcon,
   BoxIcon,
+  ListIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -35,9 +36,16 @@ const navItems: NavItem[] = [
   {
     icon: <BoxIcon />,
     name: "Shop",
-    path: "/category",
     subItems: [{ name: "Category List", path: "/category", pro: false },
     { name: "Orders List", path: "/order-list", pro: false }],
+  },
+  {
+    icon: <ListIcon />,
+    name: "Qarbani",
+    subItems: [
+    { name: "Qarbani Type", path: "/qurbani-types", pro: false },
+    { name: "Qarbani Animal", path: "/qurbani-animals", pro: false },
+    { name: "Qarbani Order", path: "/qarbani-order-list", pro: false }],
   },
   // {
   //   icon: <CalenderIcon />,
@@ -74,8 +82,12 @@ const othersItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Settings",
     subItems: [
-      { name: "soon", path: "/", pro: false },
-      { name: "soon", path: "/", pro: false },
+      { name: "Country", path: "/countries", pro: false },
+      { name: "State", path: "/states", pro: false },
+      { name: "City", path: "/cities", pro: false },
+      { name: "Area", path: "/area", pro: false },
+      { name: "Currency", path: "/currencies", pro: false },
+      { name: "Vouchers", path: "/vouchers", pro: false },
     ],
   },
   // {
@@ -309,14 +321,13 @@ const AppSidebar: React.FC = () => {
       >
         <Link to="/">
           <img
-            className="dark:hidden"
+            className="dark:hidden w-20 sm:w-28 md:w-32 h-auto mx-auto"
             src="https://myzabiha.com/zabiha-logo.png"
             alt="My Zabiha Logo"
             width={110}
             height={32}
             style={{ display: 'block', margin: '0 auto' }}
           />
-
         </Link>
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">

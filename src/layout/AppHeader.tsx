@@ -85,12 +85,12 @@ const AppHeader: React.FC = () => {
 
           <Link to="/" className="lg:hidden">
             <img
-              className="dark:hidden"
+              className="dark:hidden w-24 sm:w-32 md:w-40 h-auto mx-auto"
               src="https://myzabiha.com/zabiha-logo.png"
               alt="My Zabiha Logo"
             />
             <img
-              className="hidden dark:block"
+              className="hidden dark:block w-24 sm:w-32 md:w-40 h-auto mx-auto"
               src="https://myzabiha.com/zabiha-logo.png"
               alt="My Zabiha Logo"
             />

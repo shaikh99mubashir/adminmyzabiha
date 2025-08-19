@@ -203,8 +203,8 @@ export default function Category() {
     const [nestedOffPercent, setNestedOffPercent] = useState("");
 
     // Derived price calculation for nested category
-    const calculatedNestedPrice = nestedMrpPrice && nestedOffPercent
-        ? Math.round(Number(nestedMrpPrice) - (Number(nestedMrpPrice) * Number(nestedOffPercent) / 100))
+    const calculatedNestedPrice = (nestedMrpPrice !== "" || nestedOffPercent !== "")
+        ? Math.round(Number(nestedMrpPrice || 0) - (Number(nestedMrpPrice || 0) * Number(nestedOffPercent || 0) / 100))
         : "";
 
     // Main Category modal new fields
@@ -228,6 +228,11 @@ export default function Category() {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [editType, setEditType] = useState<'main' | 'sub' | 'nested' | null>(null);
     const [editData, setEditData] = useState<any>(null);
+
+    // Derived price calculation for edit modal (nested category)
+    const calculatedEditPrice = (editData?.mrpPrice !== "" || editData?.offPercent !== "")
+        ? Math.round(Number(editData?.mrpPrice || 0) - (Number(editData?.mrpPrice || 0) * Number(editData?.offPercent || 0) / 100))
+        : "";
 
     const handleMainCategoryImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -570,7 +575,9 @@ export default function Category() {
                 categoryData = {
                     name: editData.nestedCategory,
                     description: editData.nestedCategoryDescription,
-                    price: editData.price,
+                    price: (editData?.mrpPrice !== "" || editData?.offPercent !== "")
+                        ? String(Math.round(Number(editData?.mrpPrice || 0) - (Number(editData?.mrpPrice || 0) * Number(editData?.offPercent || 0) / 100)))
+                        : editData.price,
                     unit: editData.unit,
                     numberOfUnits: editData.numberOfUnits,
                     keywords: editData.keywords,
@@ -745,7 +752,7 @@ export default function Category() {
                         </div>
                     </form>
                 </Modal>
-                <Modal isOpen={isNestedOpen} onClose={closeNestedModal} className="max-w-[600px] xl:max-w-[1000px] m-4">
+                <Modal isOpen={isNestedOpen} onClose={closeNestedModal} className="max-w-[600px] xl:max-w-[1000px] m-4 overflow-y-auto max-h-[90vh]">
                     <form className="p-6" onSubmit={async (e) => {
                         e.preventDefault();
                         try {
@@ -862,7 +869,7 @@ export default function Category() {
                                 />
                             </div>
                             {/* Price field is now conditional and read-only if calculated, and comes after Off Percent */}
-                            {nestedMrpPrice && nestedOffPercent ? (
+                            {(nestedMrpPrice !== "" || nestedOffPercent !== "") ? (
                                 <div>
                                     <Label>Price</Label>
                                     <InputField
@@ -1039,7 +1046,15 @@ export default function Category() {
                                             <InputField
                                                 type="number"
                                                 value={editData.mrpPrice}
-                                                onChange={e => setEditData((prev: any) => ({ ...prev, mrpPrice: e.target.value }))}
+                                                onChange={e => setEditData((prev: any) => {
+                                                    const nextMrp = e.target.value;
+                                                    const priceComputed = String(
+                                                        Math.round(
+                                                            Number(nextMrp || 0) - (Number(nextMrp || 0) * Number(prev.offPercent || 0) / 100)
+                                                        )
+                                                    );
+                                                    return { ...prev, mrpPrice: nextMrp, price: priceComputed };
+                                                })}
                                                 placeholder="e.g. 1500"
                                             />
                                         </div>
@@ -1048,23 +1063,31 @@ export default function Category() {
                                             <InputField
                                                 type="number"
                                                 value={editData.offPercent}
-                                                onChange={e => setEditData((prev: any) => ({ ...prev, offPercent: e.target.value }))}
+                                                onChange={e => setEditData((prev: any) => {
+                                                    const nextOff = e.target.value;
+                                                    const priceComputed = String(
+                                                        Math.round(
+                                                            Number(prev.mrpPrice || 0) - (Number(prev.mrpPrice || 0) * Number(nextOff || 0) / 100)
+                                                        )
+                                                    );
+                                                    return { ...prev, offPercent: nextOff, price: priceComputed };
+                                                })}
                                                 placeholder="e.g. 20"
                                             />
                                         </div>
-                                        {/* Price field is now conditional and read-only if calculated, and comes after Off Percent */}
-                                        {nestedMrpPrice && nestedOffPercent ? (
-                                            <div>
-                                                <Label>Price</Label>
-                                                <InputField
-                                                    type="number"
-                                                    value={calculatedNestedPrice}
-                                                    onChange={() => {}}
-                                                    placeholder="Calculated price"
-                                                    readOnly
-                                                />
-                                            </div>
-                                        ) : null}
+                                                                                    {/* Price field is now conditional and read-only if calculated, and comes after Off Percent */}
+                                            {(editData?.mrpPrice !== "" || editData?.offPercent !== "") ? (
+                                                <div>
+                                                    <Label>Price</Label>
+                                                    <InputField
+                                                        type="number"
+                                                        value={calculatedEditPrice}
+                                                        onChange={() => {}}
+                                                        placeholder="Calculated price"
+                                                        readOnly
+                                                    />
+                                                </div>
+                                            ) : null}
                                         <div>
                                             <Label>Unit</Label>
                                             <Select

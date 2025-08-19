@@ -2,7 +2,8 @@
 const { hostname } = window.location;
 
 const servers = {
-  local: "http://localhost:3050",
+  local: "http://localhost:3050",  
+  // local: "https://api.myzabiha.com",  
   live: "https://api.myzabiha.com",
   dummy: "",
 };
