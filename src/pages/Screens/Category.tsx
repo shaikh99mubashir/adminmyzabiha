@@ -14,42 +14,42 @@ import Swal from "sweetalert2";
 import { UPLOADS_URL } from "../../constants/api";
 
 const ActionsCellRenderer = (props: any) => (
-  <div className="flex gap-2 items-center justify-center h-full">
-    <button
-      onClick={() => props.onAvailability(props.data)}
-      className="flex items-center justify-center w-7 h-7 text-blue-500 hover:text-blue-700"
-      title="Availability"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
-        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      </svg>
-    </button>
-    <button
-      onClick={() => props.onEdit(props.data)}
-      className="flex items-center justify-center w-7 h-7 text-blue-500 hover:text-blue-700"
-      title="Edit"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-      </svg>
-    </button>
-    <button
-      onClick={() => props.onDelete(props.data)}
-      className="flex items-center justify-center w-7 h-7 text-red-500 hover:text-red-700"
-      title="Delete"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6 7.5V19.125A2.625 2.625 0 0 0 8.625 21.75h6.75A2.625 2.625 0 0 0 18 19.125V7.5M9.75 10.5v6.75M14.25 10.5v6.75M4.5 7.5h15m-10.125 0V5.625A1.125 1.125 0 0 1 10.5 4.5h3a1.125 1.125 0 0 1 1.125 1.125V7.5" />
-      </svg>
-    </button>
-  </div>
+    <div className="flex gap-2 items-center justify-center h-full">
+        <button
+            onClick={() => props.onAvailability(props.data)}
+            className="flex items-center justify-center w-7 h-7 text-blue-500 hover:text-blue-700"
+            title="Availability"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            </svg>
+        </button>
+        <button
+            onClick={() => props.onEdit(props.data)}
+            className="flex items-center justify-center w-7 h-7 text-blue-500 hover:text-blue-700"
+            title="Edit"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+            </svg>
+        </button>
+        <button
+            onClick={() => props.onDelete(props.data)}
+            className="flex items-center justify-center w-7 h-7 text-red-500 hover:text-red-700"
+            title="Delete"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 7.5V19.125A2.625 2.625 0 0 0 8.625 21.75h6.75A2.625 2.625 0 0 0 18 19.125V7.5M9.75 10.5v6.75M14.25 10.5v6.75M4.5 7.5h15m-10.125 0V5.625A1.125 1.125 0 0 1 10.5 4.5h3a1.125 1.125 0 0 1 1.125 1.125V7.5" />
+            </svg>
+        </button>
+    </div>
 );
 
 export default function Category() {
     const [rowData, setRowData] = useState<any[]>([]);
     console.log("row data", rowData);
-    
+
     // Image popup state
     const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
@@ -59,7 +59,7 @@ export default function Category() {
     const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
     const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
     console.log(UPLOADS_URL);
-    
+
     // Column Definitions: Defines the columns to be displayed.
     const [colDefs] = useState<any>([
         {
@@ -82,11 +82,10 @@ export default function Category() {
             headerName: "Category Type",
             filter: 'agTextColumnFilter',
             cellRenderer: (params: any) => (
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    params.value === 'online_mandi' 
-                        ? 'bg-blue-100 text-blue-700' 
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${params.value === 'online_mandi'
+                        ? 'bg-blue-100 text-blue-700'
                         : 'bg-green-100 text-green-700'
-                }`}>
+                    }`}>
                     {params.value === 'online_mandi' ? 'Online Mandi' : 'Product'}
                 </span>
             ),
@@ -253,7 +252,7 @@ export default function Category() {
             const mainOptions: any[] = [];
             const mainOptionsForNested: any[] = [];
             const subOptionsForNested: Record<string, any[]> = {};
-            
+
             categoriesData.forEach((main: any) => {
                 // For sub category select: only main categories (parent == null)
                 if (!main.parent) {
@@ -381,15 +380,15 @@ export default function Category() {
             if (mainCategoryImage) {
                 categoryData.image = mainCategoryImage;
             }
-            
+
             await createCategory(categoryData).unwrap();
-            
+
             setCategoryName("");
             setMainCategoryImage(null);
             setMainCategoryDescription("");
             setCategoryType("product");
             closeModal();
-            
+
             Swal.fire({
                 title: "Success",
                 text: "Main category created successfully!",
@@ -416,15 +415,15 @@ export default function Category() {
             if (subCategoryImage) {
                 categoryData.image = subCategoryImage;
             }
-            
+
             await createCategory(categoryData).unwrap();
-            
+
             setSelectedMainCategory("");
             setSubCategoryName("");
             setSubCategoryImage(null);
             setSubCategoryDescription("");
             closeSubModal();
-            
+
             Swal.fire({
                 title: "Success",
                 text: "Sub category created successfully!",
@@ -464,7 +463,7 @@ export default function Category() {
             await deleteCategory(deleteTarget._id).unwrap();
             setShowDeleteModal(false);
             setDeleteTarget(null);
-            
+
             Swal.fire({
                 title: "Success",
                 text: "Category deleted successfully!",
@@ -691,8 +690,8 @@ export default function Category() {
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <Button size="sm" variant="outline" onClick={closeModal}>Close</Button>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 disabled={isCreating}
                                 className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -742,8 +741,8 @@ export default function Category() {
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <Button size="sm" variant="outline" onClick={closeSubModal}>Close</Button>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 disabled={isCreating}
                                 className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -772,9 +771,9 @@ export default function Category() {
                             if (nestedImage) {
                                 categoryData.image = nestedImage;
                             }
-                            
+
                             await createCategory(categoryData).unwrap();
-                            
+
                             setNestedMainCategory("");
                             setNestedSubCategory("");
                             setNestedCategoryName("");
@@ -789,7 +788,7 @@ export default function Category() {
                             setNestedMrpPrice("");
                             setNestedOffPercent("");
                             closeNestedModal();
-                            
+
                             Swal.fire({
                                 title: "Success",
                                 text: "Nested category created successfully!",
@@ -875,7 +874,7 @@ export default function Category() {
                                     <InputField
                                         type="number"
                                         value={calculatedNestedPrice}
-                                        onChange={() => {}}
+                                        onChange={() => { }}
                                         placeholder="Calculated price"
                                         readOnly
                                     />
@@ -941,8 +940,8 @@ export default function Category() {
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <Button size="sm" variant="outline" onClick={closeNestedModal}>Close</Button>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 disabled={isCreating}
                                 className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -960,9 +959,9 @@ export default function Category() {
                         </p>
                         <div className="flex justify-end gap-2">
                             <Button size="sm" variant="outline" onClick={handleCancelDelete}>Cancel</Button>
-                            <Button 
-                                size="sm" 
-                                variant="primary" 
+                            <Button
+                                size="sm"
+                                variant="primary"
                                 onClick={handleConfirmDelete}
                                 disabled={isDeleting}
                             >
@@ -990,8 +989,8 @@ export default function Category() {
                                 <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Edit {editType === 'main' ? 'Main' : editType === 'sub' ? 'Sub' : 'Nested'} Category</h2>
                                 {/* Render fields based on editType, pre-filled with editData */}
                                 {/* Example for nested: */}
-                                                                    {editType === 'nested' && (
-                                        <div className="grid grid-cols-1 lg:grid-cols-4 items-start gap-4 mb-4">
+                                {editType === 'nested' && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 items-start gap-4 mb-4">
                                         <div>
                                             <Label>Main Category</Label>
                                             <Select
@@ -1075,19 +1074,19 @@ export default function Category() {
                                                 placeholder="e.g. 20"
                                             />
                                         </div>
-                                                                                    {/* Price field is now conditional and read-only if calculated, and comes after Off Percent */}
-                                            {(editData?.mrpPrice !== "" || editData?.offPercent !== "") ? (
-                                                <div>
-                                                    <Label>Price</Label>
-                                                    <InputField
-                                                        type="number"
-                                                        value={calculatedEditPrice}
-                                                        onChange={() => {}}
-                                                        placeholder="Calculated price"
-                                                        readOnly
-                                                    />
-                                                </div>
-                                            ) : null}
+                                        {/* Price field is now conditional and read-only if calculated, and comes after Off Percent */}
+                                        {(editData?.mrpPrice !== "" || editData?.offPercent !== "") ? (
+                                            <div>
+                                                <Label>Price</Label>
+                                                <InputField
+                                                    type="number"
+                                                    value={calculatedEditPrice}
+                                                    onChange={() => { }}
+                                                    placeholder="Calculated price"
+                                                    readOnly
+                                                />
+                                            </div>
+                                        ) : null}
                                         <div>
                                             <Label>Unit</Label>
                                             <Select
@@ -1327,17 +1326,17 @@ export default function Category() {
                                             disabled={!(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available)}
                                             className={`flex items-center justify-between px-6 py-3 rounded-xl border text-lg font-semibold transition
                                               ${!(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available)
-                                                ? 'bg-gray bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                                : ' shadow border-gray-200 hover:bg-blue-50'}
+                                                    ? 'bg-gray bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                    : ' shadow border-gray-200 hover:bg-blue-50'}
                                             `}
                                         >
                                             <span className="truncate">{row.subCategory}</span>
                                             <span className={`ml-4 px-3 py-1 rounded-full text-xs font-bold ${(
-                                              typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available
+                                                typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available
                                             ) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                              {(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
-                                                ? 'Available'
-                                                : 'Unavailable'}
+                                                {(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
+                                                    ? 'Available'
+                                                    : 'Unavailable'}
                                             </span>
                                         </Button>
                                         {!(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) && (
@@ -1361,28 +1360,28 @@ export default function Category() {
                                             }
                                             className={`flex items-center justify-between px-6 py-3 rounded-xl border text-lg font-semibold transition
                                               ${(
-                                                !(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) ||
-                                                !(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
-                                              )
-                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                                : 'shadow border-gray-200 hover:bg-blue-50'}
+                                                    !(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) ||
+                                                    !(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
+                                                )
+                                                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                    : 'shadow border-gray-200 hover:bg-blue-50'}
                                             `}
                                         >
                                             <span className="truncate">{row.nestedCategory}</span>
                                             <span className={`ml-4 px-3 py-1 rounded-full text-xs font-bold ${(
-                                              typeof row.nestedCategoryAvailable === 'boolean' ? row.nestedCategoryAvailable : row.available
+                                                typeof row.nestedCategoryAvailable === 'boolean' ? row.nestedCategoryAvailable : row.available
                                             ) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                              {(typeof row.nestedCategoryAvailable === 'boolean' ? row.nestedCategoryAvailable : row.available)
-                                                ? 'Available'
-                                                : 'Unavailable'}
+                                                {(typeof row.nestedCategoryAvailable === 'boolean' ? row.nestedCategoryAvailable : row.available)
+                                                    ? 'Available'
+                                                    : 'Unavailable'}
                                             </span>
                                         </Button>
                                         {(
                                             !(typeof row.mainCategoryAvailable === 'boolean' ? row.mainCategoryAvailable : row.available) ||
                                             !(typeof row.subCategoryAvailable === 'boolean' ? row.subCategoryAvailable : row.available)
                                         ) && (
-                                            <span className="text-xs text-gray-400 ml-2 mt-1">Enable parent category first</span>
-                                        )}
+                                                <span className="text-xs text-gray-400 ml-2 mt-1">Enable parent category first</span>
+                                            )}
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center px-6 py-3 rounded-xl bg-gray-50 border border-dashed border-gray-200 text-gray-400 text-sm">
