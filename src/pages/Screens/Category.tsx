@@ -57,7 +57,7 @@ export default function Category() {
     const { data: categoriesData, isLoading, error } = useGetCategoriesQuery(undefined);
     const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
     const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
-    const [updateCategory] = useUpdateCategoryMutation();
+    const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
     console.log(UPLOADS_URL);
     
     // Column Definitions: Defines the columns to be displayed.
@@ -990,8 +990,8 @@ export default function Category() {
                                 <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Edit {editType === 'main' ? 'Main' : editType === 'sub' ? 'Sub' : 'Nested'} Category</h2>
                                 {/* Render fields based on editType, pre-filled with editData */}
                                 {/* Example for nested: */}
-                                {editType === 'nested' && (
-                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+                                                                    {editType === 'nested' && (
+                                        <div className="grid grid-cols-1 lg:grid-cols-4 items-start gap-4 mb-4">
                                         <div>
                                             <Label>Main Category</Label>
                                             <Select
@@ -1136,6 +1136,15 @@ export default function Category() {
                                             />
                                         </div>
                                         {/* New fields end here */}
+                                        <div className="mb-4 lg:col-span-2">
+                                            <Label>Description</Label>
+                                            <TextArea
+                                                value={editData.nestedCategoryDescription || ""}
+                                                onChange={value => setEditData((prev: any) => ({ ...prev, nestedCategoryDescription: value }))}
+                                                placeholder="Enter description"
+                                                rows={3}
+                                            />
+                                        </div>
                                     </div>
                                 )}
                                 {/* Similar for main/sub: use value={editData.field} and onChange to update editData */}
@@ -1258,9 +1267,20 @@ export default function Category() {
                                 <button
                                     type="submit"
                                     onClick={() => handleEditSubmit()}
+                                    disabled={isUpdating}
                                     className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Update
+                                    {isUpdating ? (
+                                        <>
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                            </svg>
+                                            <span>Updating...</span>
+                                        </>
+                                    ) : (
+                                        <span>Update</span>
+                                    )}
                                 </button>
                             </div>
                         </>
